@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Product {
@@ -68,4 +69,24 @@ model StockEntry {
   type      String
   reason    String?
   date      DateTime @default(now())
+}
+
+model Reseller {
+  id              String    @id @default(cuid())
+  name            String
+  country         String
+  type            String    @default("distributeur")
+  status          String    @default("actif")
+  since           DateTime
+  contactName     String    @default("")
+  totalRevenue    Float     @default(0)
+  totalOrders     Int       @default(0)
+  avgOrderValue   Float     @default(0)
+  lastOrderDate   DateTime?
+  growthRate      Float     @default(0)
+  paymentScore    Int       @default(80)
+  productsHandled String    @default("")
+  target          Float     @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }

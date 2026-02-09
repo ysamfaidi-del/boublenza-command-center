@@ -199,3 +199,31 @@ export interface DemandForecast {
   trend: string;
   recommendation: string;
 }
+
+// ── Marché Mondial ──────────────────────────────────
+
+export interface ForexRate {
+  pair: string;
+  rate: number;
+  change24h: number;
+  changePercent: number;
+}
+
+export interface MarketMondialData {
+  cocoa: {
+    currentPrice: number;
+    change: number;
+    changePercent: number;
+    history: CocoaPricePoint[];
+  };
+  forex: ForexRate[];
+  forexHistory: { date: string; USD: number; GBP: number; DZD: number }[];
+  trends: MarketTrend[];
+  news: NewsItem[];
+  carobVsCocoa: {
+    carobPrice: number;
+    cocoaPrice: number;
+    spread: number;
+    spreadPercent: number;
+  };
+}

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Factory, ShoppingCart, Package, Settings, Leaf,
   Presentation, Upload, TrendingUp,
-  Activity, BarChart3, Shield, Truck, Users, FileText,
+  Activity, BarChart3, Shield, Truck, Users, FileText, Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,7 @@ const mainNav: NavItem[] = [
 
 const premiumNav: NavItem[] = [
   { name: "War Room", href: "/war-room", icon: Activity, premium: true },
+  { name: "Marché Mondial", href: "/marche-mondial", icon: Globe, premium: true },
   { name: "Commodities", href: "/commodities", icon: BarChart3, premium: true },
   { name: "Risques", href: "/risk", icon: Shield, premium: true },
   { name: "Supply Chain", href: "/supply-chain", icon: Truck, premium: true },

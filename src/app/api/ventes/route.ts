@@ -79,6 +79,31 @@ export async function GET() {
     });
   }
 
-  return NextResponse.json({ byCountry, byProduct, pipeline, monthly, resellers: [] });
+  // Query resellers from DB
+  const months12 = monthly.map((m) => m.month);
+  const dbResellers = await prisma.reseller.findMany({ orderBy: { totalRevenue: "desc" } });
+  const resellers = dbResellers.map((r) => ({
+    id: r.id,
+    name: r.name,
+    country: r.country,
+    type: r.type as "distributeur" | "grossiste" | "agent",
+    status: r.status as "actif" | "onboarding" | "inactif",
+    since: r.since.toISOString().split("T")[0],
+    contactName: r.contactName,
+    totalRevenue: r.totalRevenue,
+    totalOrders: r.totalOrders,
+    avgOrderValue: r.avgOrderValue,
+    lastOrderDate: r.lastOrderDate?.toISOString().split("T")[0] || "",
+    growthRate: r.growthRate,
+    paymentScore: r.paymentScore,
+    productsHandled: r.productsHandled.split(",").filter(Boolean),
+    monthlyRevenue: months12.map((month, i) => ({
+      month,
+      revenue: Math.round(r.totalRevenue / 12 * (0.7 + Math.sin(i * 0.8) * 0.3)),
+    })),
+    target: r.target,
+  }));
+
+  return NextResponse.json({ byCountry, byProduct, pipeline, monthly, resellers });
   } catch { return NextResponse.json(demoVentes); }
 }

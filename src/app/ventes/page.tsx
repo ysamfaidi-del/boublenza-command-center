@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn, formatCurrency, formatNumber, STATUS_LABELS, PRODUCT_COLORS } from "@/lib/utils";
 import type { SalesData, Reseller } from "@/types";
+import MarketSummaryCard from "@/components/dashboard/MarketSummaryCard";
 
 const PIPELINE_COLORS: Record<string, string> = {
   draft: "bg-gray-100 border-gray-300 text-gray-700",
@@ -159,6 +160,9 @@ export default function VentesPage() {
           </div>
         </div>
       )}
+
+      {/* ═══ Résumé Marché Mondial ═══ */}
+      <MarketSummaryCard />
 
       {/* ═══ Monthly Revenue + Orders ═══ */}
       <div className="card">

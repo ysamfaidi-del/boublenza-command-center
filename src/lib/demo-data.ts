@@ -478,6 +478,56 @@ export const demoExecutive = {
   ],
 };
 
+// ── Marché Mondial (demo fallback) ──
+export const demoMarketMondial = {
+  cocoa: {
+    currentPrice: 8750,
+    change: 120,
+    changePercent: 1.39,
+    history: Array.from({ length: 90 }, (_, i) => {
+      const d = new Date(Date.now() - (89 - i) * 86400000);
+      return {
+        date: d.toISOString().split("T")[0],
+        price: Math.round(8200 + Math.sin(i * 0.08) * 600 + i * 3),
+        volume: Math.round(20000 + Math.random() * 15000),
+      };
+    }),
+  },
+  forex: [
+    { pair: "EUR/USD", rate: 1.085, change24h: 0.003, changePercent: 0.28 },
+    { pair: "EUR/GBP", rate: 0.843, change24h: -0.001, changePercent: -0.12 },
+    { pair: "EUR/DZD", rate: 146.5, change24h: 0.8, changePercent: 0.55 },
+  ],
+  forexHistory: Array.from({ length: 90 }, (_, i) => {
+    const d = new Date(Date.now() - (89 - i) * 86400000);
+    return {
+      date: d.toISOString().split("T")[0],
+      USD: +(1.08 + Math.sin(i * 0.07) * 0.02).toFixed(4),
+      GBP: +(0.84 + Math.sin(i * 0.05) * 0.01).toFixed(4),
+      DZD: +(146 + Math.sin(i * 0.04) * 2).toFixed(2),
+    };
+  }),
+  trends: [
+    { sector: "Alimentaire", demandGrowth: 12.5, volume: 85000, growth: 12.5, marketSize: "$1.2B", topCountries: ["Europe", "USA", "Japon"] },
+    { sector: "Alim. animale", demandGrowth: 8.3, volume: 42000, growth: 8.3, marketSize: "$450M", topCountries: ["Europe", "Brésil", "Chine"] },
+    { sector: "Pharma", demandGrowth: 15.0, volume: 18000, growth: 15.0, marketSize: "$180M", topCountries: ["USA", "Allemagne", "Suisse"] },
+    { sector: "Cosmétique", demandGrowth: 18.2, volume: 9500, growth: 18.2, marketSize: "$95M", topCountries: ["France", "Corée du Sud", "USA"] },
+    { sector: "Subst. cacao", demandGrowth: 22.0, volume: 32000, growth: 22.0, marketSize: "$320M", topCountries: ["Espagne", "Italie", "Allemagne"] },
+  ],
+  news: [
+    { title: "Le marché mondial de la caroube devrait atteindre $2.5B d'ici 2030", summary: "La demande croissante pour les alternatives au cacao propulse le marché.", source: "Food Industry Report", date: new Date(Date.now() - 2 * 86400000).toISOString(), sentiment: "positive" as const },
+    { title: "Les prix du cacao atteignent un niveau record historique", summary: "La flambée des prix pousse les industriels vers la poudre de caroube.", source: "Bloomberg Commodities", date: new Date(Date.now() - 5 * 86400000).toISOString(), sentiment: "positive" as const },
+    { title: "L'UE renforce les normes d'importation alimentaires", summary: "Les nouvelles réglementations impactent les exportateurs nord-africains.", source: "EU Food Safety Authority", date: new Date(Date.now() - 8 * 86400000).toISOString(), sentiment: "neutral" as const },
+    { title: "Croissance de 18% du marché sans gluten en Asie", summary: "Le Japon et la Corée du Sud ouvrent de nouvelles opportunités.", source: "Asian Food Market Intelligence", date: new Date(Date.now() - 12 * 86400000).toISOString(), sentiment: "negative" as const },
+  ],
+  carobVsCocoa: {
+    carobPrice: 4500,
+    cocoaPrice: 8750,
+    spread: 4250,
+    spreadPercent: 48.6,
+  },
+};
+
 // ── Helper: check if DB is available ──
 export async function isDbAvailable(): Promise<boolean> {
   try {

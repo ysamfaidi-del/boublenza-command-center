@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Clear existing data
+  await prisma.reseller.deleteMany();
   await prisma.stockEntry.deleteMany();
   await prisma.productionEntry.deleteMany();
   await prisma.orderLine.deleteMany();
@@ -150,12 +151,101 @@ async function main() {
     }
   }
 
+  // Resellers / Distributeurs
+  const resellersData = [
+    {
+      name: "Naturex S.A.",
+      country: "France",
+      type: "distributeur",
+      status: "actif",
+      since: new Date("2023-01-15"),
+      contactName: "Pierre Dumont",
+      totalRevenue: 485000,
+      totalOrders: 18,
+      avgOrderValue: 26944,
+      lastOrderDate: new Date(Date.now() - 2 * 86400000),
+      growthRate: 18.5,
+      paymentScore: 95,
+      productsHandled: "CARUMA,CARANI,CAROB EXTRACT",
+      target: 550000,
+    },
+    {
+      name: "Cargill BV",
+      country: "Pays-Bas",
+      type: "grossiste",
+      status: "actif",
+      since: new Date("2024-03-01"),
+      contactName: "Hans van der Berg",
+      totalRevenue: 372000,
+      totalOrders: 12,
+      avgOrderValue: 31000,
+      lastOrderDate: new Date(Date.now() - 3 * 86400000),
+      growthRate: 12.3,
+      paymentScore: 92,
+      productsHandled: "CARUMA,CARANI",
+      target: 420000,
+    },
+    {
+      name: "Döhler GmbH",
+      country: "Allemagne",
+      type: "distributeur",
+      status: "actif",
+      since: new Date("2024-07-15"),
+      contactName: "Klaus Fischer",
+      totalRevenue: 298000,
+      totalOrders: 15,
+      avgOrderValue: 19867,
+      lastOrderDate: new Date(Date.now() - 5 * 86400000),
+      growthRate: 22.1,
+      paymentScore: 78,
+      productsHandled: "CARANI,CAROB EXTRACT",
+      target: 350000,
+    },
+    {
+      name: "Barry Callebaut",
+      country: "Suisse",
+      type: "distributeur",
+      status: "onboarding",
+      since: new Date("2025-11-01"),
+      contactName: "Marc Lehmann",
+      totalRevenue: 68000,
+      totalOrders: 3,
+      avgOrderValue: 22667,
+      lastOrderDate: new Date(Date.now() - 8 * 86400000),
+      growthRate: 0,
+      paymentScore: 88,
+      productsHandled: "CARUMA",
+      target: 200000,
+    },
+    {
+      name: "Tate & Lyle",
+      country: "UK",
+      type: "agent",
+      status: "onboarding",
+      since: new Date("2026-01-10"),
+      contactName: "Sarah Mitchell",
+      totalRevenue: 24000,
+      totalOrders: 1,
+      avgOrderValue: 24000,
+      lastOrderDate: new Date(Date.now() - 15 * 86400000),
+      growthRate: 0,
+      paymentScore: 70,
+      productsHandled: "CARANI",
+      target: 150000,
+    },
+  ];
+
+  for (const r of resellersData) {
+    await prisma.reseller.create({ data: r });
+  }
+
   console.log("Seed completed successfully!");
   console.log(`- ${products.length} products`);
   console.log(`- ${clients.length} clients`);
   console.log(`- 55 orders`);
   console.log(`- Production entries for 12 months`);
   console.log(`- Stock movements`);
+  console.log(`- ${resellersData.length} resellers`);
 }
 
 main()
