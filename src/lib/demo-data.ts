@@ -242,7 +242,7 @@ export const demoRisk = {
       { type: "Opérationnel", amount: 110000, pct: 14 },
     ],
   },
-  stress: [
+  stressScenarios: [
     { name: "Crise cacao +40%", cocoaChange: 40, fxChange: -5, impactRevenue: 180000, impactMargin: -8.5, riskLevel: "critical" as const },
     { name: "EUR/USD -15%", cocoaChange: 0, fxChange: -15, impactRevenue: -95000, impactMargin: -3.2, riskLevel: "high" as const },
     { name: "Perte client majeur", cocoaChange: 0, fxChange: 0, impactRevenue: -245000, impactMargin: -5.0, riskLevel: "high" as const },
@@ -250,13 +250,13 @@ export const demoRisk = {
     { name: "Récession UE modérée", cocoaChange: -10, fxChange: -3, impactRevenue: -85000, impactMargin: -2.1, riskLevel: "medium" as const },
     { name: "Scénario favorable", cocoaChange: 20, fxChange: 5, impactRevenue: 150000, impactMargin: 3.5, riskLevel: "low" as const },
   ],
-  hedging: [
+  hedgeScenarios: [
     { strategy: "Forward EUR/USD 6 mois", cost: 12000, protection: 95000, netBenefit: 83000, recommendation: true },
     { strategy: "Option put cacao", cost: 18000, protection: 120000, netBenefit: 102000, recommendation: true },
     { strategy: "Swap taux fixe", cost: 8000, protection: 45000, netBenefit: 37000, recommendation: false },
     { strategy: "Couverture complète", cost: 35000, protection: 250000, netBenefit: 215000, recommendation: true },
   ],
-  counterparty: [
+  counterparties: [
     { clientId: "C1", client: "Naturex S.A.", country: "France", paymentScore: 95, volumeScore: 88, riskRating: "A" as const, totalExposure: 485000, avgPaymentDays: 28 },
     { clientId: "C2", client: "Cargill BV", country: "Pays-Bas", paymentScore: 92, volumeScore: 85, riskRating: "A" as const, totalExposure: 372000, avgPaymentDays: 32 },
     { clientId: "C3", client: "Döhler GmbH", country: "Allemagne", paymentScore: 78, volumeScore: 72, riskRating: "B" as const, totalExposure: 298000, avgPaymentDays: 45 },
@@ -287,7 +287,7 @@ export const demoSupplyChain = {
     { stage: "Transport interne Tlemcen→Alger", severity: "medium" as const, description: "Disponibilité camions limitée", impact: "Délai moyen +1 jour", avgDelay: 1 },
     { stage: "Documentation douanière", severity: "low" as const, description: "Processus digitalisé en cours", impact: "Délai moyen +0.5 jour", avgDelay: 0.5 },
   ],
-  quality: [
+  qualityLots: [
     { lotId: "LOT-240201", product: "CARUMA", date: new Date(Date.now() - 2 * 86400000).toISOString().split("T")[0], quantity: 2500, quality: "Grade A", destination: "Naturex S.A.", status: "Expédié" },
     { lotId: "LOT-240202", product: "CARANI", date: new Date(Date.now() - 3 * 86400000).toISOString().split("T")[0], quantity: 1800, quality: "Grade A", destination: "Cargill BV", status: "En stock" },
     { lotId: "LOT-240203", product: "CAROB EXTRACT", date: new Date(Date.now() - 4 * 86400000).toISOString().split("T")[0], quantity: 800, quality: "Grade B", destination: "Döhler GmbH", status: "Contrôle qualité" },
