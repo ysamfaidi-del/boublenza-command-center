@@ -94,8 +94,8 @@ function FlowArc({
         d={d}
         fill="none"
         stroke="#00ff88"
-        strokeWidth={strokeW + 4}
-        strokeOpacity={0.08}
+        strokeWidth={strokeW + 6}
+        strokeOpacity={0.15}
         strokeLinecap="round"
         filter="url(#glow-green)"
         style={{ pointerEvents: "none" }}
@@ -107,7 +107,7 @@ function FlowArc({
         fill="none"
         stroke={`url(#arc-grad-${index})`}
         strokeWidth={strokeW}
-        strokeOpacity={0.55}
+        strokeOpacity={0.75}
         strokeLinecap="round"
         style={{ pointerEvents: "none" }}
       />
@@ -301,7 +301,7 @@ export default function WorldMap({ flows }: Props) {
           <MapDefs />
 
           {/* Subtle graticule grid */}
-          <Graticule stroke="#1a1a2e" strokeWidth={0.3} />
+          <Graticule stroke="#1e2a40" strokeWidth={0.3} />
 
           {/* World geography */}
           <Geographies geography={GEO_URL}>
@@ -310,12 +310,12 @@ export default function WorldMap({ flows }: Props) {
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill="#1a1a2e"
-                  stroke="#2a2a3e"
-                  strokeWidth={0.4}
+                  fill="#16213e"
+                  stroke="#2d3a5e"
+                  strokeWidth={0.5}
                   style={{
                     default: { outline: "none" },
-                    hover: { fill: "#22223a", outline: "none" },
+                    hover: { fill: "#1e2d4a", outline: "none" },
                     pressed: { outline: "none" },
                   }}
                 />
