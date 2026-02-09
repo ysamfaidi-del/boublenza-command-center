@@ -1,5 +1,5 @@
 declare module "react-simple-maps" {
-  import type { ComponentType, ReactNode } from "react";
+  import type { ComponentType, ReactNode, Context } from "react";
 
   interface ComposableMapProps {
     projection?: string;
@@ -48,9 +48,36 @@ declare module "react-simple-maps" {
     style?: React.CSSProperties;
   }
 
+  interface GraticuleProps {
+    fill?: string;
+    stroke?: string;
+    strokeWidth?: number;
+    step?: [number, number];
+    className?: string;
+  }
+
+  interface SphereProps {
+    id?: string;
+    fill?: string;
+    stroke?: string;
+    strokeWidth?: number;
+    className?: string;
+  }
+
+  interface MapContextValue {
+    projection: (coords: [number, number]) => [number, number] | null;
+    path: (geo: unknown) => string;
+    width: number;
+    height: number;
+  }
+
   export const ComposableMap: ComponentType<ComposableMapProps>;
   export const Geographies: ComponentType<GeographiesProps>;
   export const Geography: ComponentType<GeographyProps>;
   export const Marker: ComponentType<MarkerProps>;
   export const Line: ComponentType<LineProps>;
+  export const Graticule: ComponentType<GraticuleProps>;
+  export const Sphere: ComponentType<SphereProps>;
+  export const MapContext: Context<MapContextValue>;
+  export function useMapContext(): MapContextValue;
 }

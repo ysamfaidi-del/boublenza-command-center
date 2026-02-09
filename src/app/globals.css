@@ -64,3 +64,23 @@
   to { stroke-dashoffset: -20; }
 }
 .animate-flow { animation: flow-dash 1.5s linear infinite; }
+
+/* === WorldMap Premium Animations === */
+@keyframes arc-flow {
+  0% { stroke-dashoffset: 24; }
+  100% { stroke-dashoffset: 0; }
+}
+.animate-arc-flow { animation: arc-flow 1.2s linear infinite; }
+
+@keyframes ring-expand {
+  0% { r: 4; opacity: 0.8; }
+  100% { r: 16; opacity: 0; }
+}
+.animate-ring-expand { animation: ring-expand 2s ease-out infinite; }
+.animate-ring-expand-delayed { animation: ring-expand 2s ease-out infinite; animation-delay: 1s; }
+
+@keyframes origin-breathe {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(0,255,136,0.6)); }
+  50% { filter: drop-shadow(0 0 12px rgba(0,255,136,1)); }
+}
+.animate-origin-breathe { animation: origin-breathe 3s ease-in-out infinite; }
