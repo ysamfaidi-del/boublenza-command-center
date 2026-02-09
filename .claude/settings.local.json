@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.boublenza.com)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma db push:*)",
+      "Bash(npm run db:seed:*)",
+      "Bash(npm run build:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(pkill:*)",
+      "Bash(lsof:*)",
+      "Bash(npm run dev:*)",
+      "mcp__filesystem__directory_tree",
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__write_file",
+      "Bash(chmod:*)",
+      "Bash(find:*)",
+      "Bash(gh auth status:*)",
+      "Bash(brew install:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nBoublenza Command Center — Full premium dashboard\n\n13 pages, 22 API routes:\n- Core: Dashboard, Production, Ventes, Stocks\n- IA: Slides multi-model, Import Excel, Prévisions & Marchés\n- Premium Glencore: War Room \\(dark mode\\), Commodity Intelligence,\n  Risk Management, Supply Chain, Commercial Intelligence, Executive Reporting\n\nTech: Next.js 15 + Prisma SQLite + Recharts + Tailwind + react-simple-maps + framer-motion\nEOF\n\\)\")"
+    ]
+  }
+}
