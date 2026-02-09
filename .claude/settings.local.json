@@ -21,7 +21,11 @@
       "Bash(brew install:*)",
       "Bash(git init:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nBoublenza Command Center — Full premium dashboard\n\n13 pages, 22 API routes:\n- Core: Dashboard, Production, Ventes, Stocks\n- IA: Slides multi-model, Import Excel, Prévisions & Marchés\n- Premium Glencore: War Room \\(dark mode\\), Commodity Intelligence,\n  Risk Management, Supply Chain, Commercial Intelligence, Executive Reporting\n\nTech: Next.js 15 + Prisma SQLite + Recharts + Tailwind + react-simple-maps + framer-motion\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nBoublenza Command Center — Full premium dashboard\n\n13 pages, 22 API routes:\n- Core: Dashboard, Production, Ventes, Stocks\n- IA: Slides multi-model, Import Excel, Prévisions & Marchés\n- Premium Glencore: War Room \\(dark mode\\), Commodity Intelligence,\n  Risk Management, Supply Chain, Commercial Intelligence, Executive Reporting\n\nTech: Next.js 15 + Prisma SQLite + Recharts + Tailwind + react-simple-maps + framer-motion\nEOF\n\\)\")",
+      "Bash(gh repo create:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh auth:*)"
     ]
   }
 }

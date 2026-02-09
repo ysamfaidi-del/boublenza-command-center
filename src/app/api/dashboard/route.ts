@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { demoDashboard } from "@/lib/demo-data";
 
 export async function GET() {
+  try {
   const now = new Date();
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -163,4 +165,5 @@ export async function GET() {
     topClients,
     recentOrders,
   });
+  } catch { return NextResponse.json(demoDashboard); }
 }

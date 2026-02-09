@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { demoStocks } from "@/lib/demo-data";
 
 export async function GET() {
+  try {
   const now = new Date();
   const yearStart = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
@@ -97,4 +99,5 @@ export async function GET() {
   }
 
   return NextResponse.json({ current, movements, trends });
+  } catch { return NextResponse.json(demoStocks); }
 }

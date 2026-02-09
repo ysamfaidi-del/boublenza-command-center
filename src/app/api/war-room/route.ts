@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { calculatePnL, calculateCurrencyExposure } from "@/lib/analytics/pnl-calculator";
 import { generateAlerts } from "@/lib/analytics/alerts-engine";
+import { demoWarRoom } from "@/lib/demo-data";
 import type { WarRoomData, ExportFlow, OpenPosition } from "@/types/premium";
 
 const CITY_COORDS: Record<string, [number, number]> = {
@@ -13,6 +14,7 @@ const CITY_COORDS: Record<string, [number, number]> = {
 const TLEMCEN: [number, number] = [34.89, -1.32];
 
 export async function GET() {
+  try {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -80,4 +82,5 @@ export async function GET() {
 
   const data: WarRoomData = { kpis, pnl, positions, currencies, alerts, flows, lastUpdate: now.toISOString() };
   return NextResponse.json(data);
+  } catch { return NextResponse.json(demoWarRoom); }
 }

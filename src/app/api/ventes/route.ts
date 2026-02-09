@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { MONTHS_FR } from "@/lib/utils";
+import { demoVentes } from "@/lib/demo-data";
 
 export async function GET() {
+  try {
   const now = new Date();
   const yearStart = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
@@ -78,4 +80,5 @@ export async function GET() {
   }
 
   return NextResponse.json({ byCountry, byProduct, pipeline, monthly });
+  } catch { return NextResponse.json(demoVentes); }
 }

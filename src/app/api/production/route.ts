@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { demoProduction } from "@/lib/demo-data";
 
 const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
 
 export async function GET() {
+  try {
   const now = new Date();
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -71,4 +73,5 @@ export async function GET() {
   }));
 
   return NextResponse.json({ monthly, byQuality, byShift, total, totalChange });
+  } catch { return NextResponse.json(demoProduction); }
 }

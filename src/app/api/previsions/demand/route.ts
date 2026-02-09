@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { demoPrevisionsDemand } from "@/lib/demo-data";
 
 const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
 
 export async function GET() {
+  try {
   const now = new Date();
   const yearStart = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
@@ -75,4 +77,5 @@ export async function GET() {
   });
 
   return NextResponse.json({ forecasts });
+  } catch { return NextResponse.json(demoPrevisionsDemand); }
 }
