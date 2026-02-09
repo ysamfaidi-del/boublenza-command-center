@@ -69,11 +69,31 @@ export interface ProductionData {
   totalChange: number;
 }
 
+export interface Reseller {
+  id: string;
+  name: string;
+  country: string;
+  type: "distributeur" | "grossiste" | "agent";
+  status: "actif" | "onboarding" | "inactif";
+  since: string;
+  contactName: string;
+  totalRevenue: number;
+  totalOrders: number;
+  avgOrderValue: number;
+  lastOrderDate: string;
+  growthRate: number;
+  paymentScore: number;
+  productsHandled: string[];
+  monthlyRevenue: { month: string; revenue: number }[];
+  target: number;
+}
+
 export interface SalesData {
   byCountry: { country: string; revenue: number; orders: number }[];
   byProduct: { name: string; revenue: number; quantity: number }[];
   pipeline: { status: string; count: number; amount: number }[];
   monthly: { month: string; revenue: number; orders: number }[];
+  resellers: Reseller[];
 }
 
 export interface StockData {

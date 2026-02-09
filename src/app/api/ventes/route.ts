@@ -79,6 +79,6 @@ export async function GET() {
     });
   }
 
-  return NextResponse.json({ byCountry, byProduct, pipeline, monthly });
+  return NextResponse.json({ byCountry, byProduct, pipeline, monthly, resellers: [] });
   } catch { return NextResponse.json(demoVentes); }
 }
