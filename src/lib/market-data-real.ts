@@ -154,16 +154,16 @@ export async function generateRealMarketNews(
   const cached = getCached<NewsItem[]>(cacheKey);
   if (cached) return cached;
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
     return generateNewsItems();
   }
 
   try {
     const { generateText } = await import("ai");
-    const { anthropic } = await import("@ai-sdk/anthropic");
+    const { google } = await import("@ai-sdk/google");
 
     const result = await generateText({
-      model: anthropic("claude-sonnet-4-20250514"),
+      model: google("gemini-2.0-flash"),
       prompt: `Tu es un analyste marché spécialisé dans les matières premières agricoles.
 Génère exactement 4 brèves actualités marché en français pertinentes pour une entreprise algérienne de transformation de caroube (Boublenza SARL à Tlemcen).
 
