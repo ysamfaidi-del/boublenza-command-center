@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DollarSign, Factory, ShoppingCart, Gauge } from "lucide-react";
+import { DollarSign, Factory, ShoppingCart, Gauge, Percent, Wallet, TrendingUp, BarChart3 } from "lucide-react";
 import KpiCard from "@/components/dashboard/KpiCard";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import ProductSalesChart from "@/components/dashboard/ProductSalesChart";
@@ -62,6 +62,34 @@ export default function DashboardPage() {
           value={`${data.kpis.capacityRate}%`}
           change={0}
           icon={Gauge}
+        />
+      </div>
+
+      {/* Financial KPI Cards */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
+          title="Marge brute"
+          value={`${data.kpis.grossMarginPct}%`}
+          change={0}
+          icon={Percent}
+        />
+        <KpiCard
+          title="Budget CA"
+          value={`${formatCurrency(data.kpis.actualRevenue)} / ${formatCurrency(data.kpis.budgetRevenue)}`}
+          change={data.kpis.budgetRevenue > 0 ? Math.round(((data.kpis.actualRevenue - data.kpis.budgetRevenue) / data.kpis.budgetRevenue) * 100) : 0}
+          icon={TrendingUp}
+        />
+        <KpiCard
+          title="Trésorerie"
+          value={formatCurrency(data.kpis.cashPosition)}
+          change={0}
+          icon={Wallet}
+        />
+        <KpiCard
+          title="EBITDA (est.)"
+          value={formatCurrency(Math.round(data.kpis.actualRevenue * data.kpis.grossMarginPct / 100 * 0.7))}
+          change={0}
+          icon={BarChart3}
         />
       </div>
 

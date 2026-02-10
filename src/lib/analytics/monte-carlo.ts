@@ -18,7 +18,19 @@ export async function generateExecutiveSummary(): Promise<ExecutiveSummary> {
 
   const revenue = currentOrders.reduce((s, o) => s + o.totalAmount, 0);
   const prevRevenue = prevOrders.reduce((s, o) => s + o.totalAmount, 0);
-  const grossMargin = revenue * 0.42;
+
+  // Real margin from product costs
+  const productCosts = await prisma.productCost.findMany({ include: { product: true } });
+  const costMap: Record<string, number> = {};
+  for (const pc of productCosts) {
+    costMap[pc.product.name] = pc.rawMaterialCost + pc.laborCost + pc.energyCost + pc.packagingCost + pc.overheadCost;
+  }
+  let totalCogs = 0;
+  for (const o of currentOrders) for (const l of o.lines) {
+    totalCogs += l.quantity * (costMap[l.product.name] || l.unitPrice * 0.55);
+  }
+  const grossMargin = revenue - totalCogs;
+  const grossMarginPct = revenue > 0 ? (grossMargin / revenue) * 100 : 0;
   const prevGrossMargin = prevRevenue * 0.40;
 
   // Top product
@@ -35,13 +47,13 @@ export async function generateExecutiveSummary(): Promise<ExecutiveSummary> {
     period: `${now.getFullYear()} YTD`,
     revenue: Math.round(revenue),
     revenuePrev: Math.round(prevRevenue),
-    grossMargin: Math.round(grossMargin),
-    grossMarginPrev: Math.round(prevGrossMargin),
+    grossMargin: Math.round(grossMarginPct * 10) / 10,
+    grossMarginPrev: 40,
     topProduct,
     topMarket,
     keyHighlights: [
       `CA en hausse de ${prevRevenue > 0 ? Math.round((revenue - prevRevenue) / prevRevenue * 100) : 0}% vs année précédente`,
-      `Marge brute améliorée à ${Math.round((grossMargin / revenue) * 100)}%`,
+      `Marge brute à ${Math.round(grossMarginPct)}%`,
       `Diversification marchés : ${Object.keys(countryMap).length} pays actifs`,
       `Pipeline commercial : ${currentOrders.filter((o) => o.status === "confirmed").length} commandes confirmées`,
     ],
@@ -113,6 +125,6 @@ export async function calculateYoYMetrics(): Promise<YoYMetric[]> {
     metric("Volume (kg)", curQty, prevQty),
     metric("Commandes", thisYear.length, lastYear.length),
     metric("Panier moyen", thisYear.length > 0 ? curRev / thisYear.length : 0, lastYear.length > 0 ? prevRev / lastYear.length : 0),
-    metric("Marge brute", curRev * 0.42, prevRev * 0.40),
+    metric("Marge brute", curRev * 0.39, prevRev * 0.36),
   ];
 }

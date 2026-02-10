@@ -10,6 +10,7 @@ import {
   ArrowUpRight, ArrowDownRight, Lightbulb, Target, Shuffle, Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import DemoBadge from "@/components/ui/DemoBadge";
 import type { CommodityData, CorrelationPair, CorrelationInsight } from "@/types/premium";
 
 const INSIGHT_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -99,6 +100,7 @@ export default function CommoditiesPage() {
 
   return (
     <div className="space-y-8">
+      <DemoBadge label="Corrélations calculées sur séries simulées — connecter à des flux marché réels pour production" />
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-6">
         {data.fundamentals.map((f) => (

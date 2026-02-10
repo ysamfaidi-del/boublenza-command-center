@@ -149,6 +149,46 @@ export async function GET() {
   const capacityTarget = 40000;
   const capacityRate = Math.round(((currentProd._sum.quantity || 0) / capacityTarget) * 100);
 
+  // ── Financial KPIs ──────────────────────────────────
+  // Product costs → cost map
+  const productCosts = await prisma.productCost.findMany({ include: { product: true } });
+  const costMap: Record<string, number> = {};
+  for (const pc of productCosts) {
+    costMap[pc.product.name] =
+      pc.rawMaterialCost + pc.laborCost + pc.energyCost + pc.packagingCost + pc.overheadCost;
+  }
+
+  // Gross margin from current-month order lines
+  const currentMonthLines = await prisma.orderLine.findMany({
+    where: { order: { createdAt: { gte: currentMonthStart }, status: { not: "cancelled" } } },
+    include: { product: true },
+  });
+  let totalRevLines = 0;
+  let totalCost = 0;
+  for (const line of currentMonthLines) {
+    const lineRev = line.quantity * line.unitPrice;
+    const lineCost = line.quantity * (costMap[line.product.name] || 0);
+    totalRevLines += lineRev;
+    totalCost += lineCost;
+  }
+  const grossMarginPct =
+    totalRevLines > 0 ? Math.round(((totalRevLines - totalCost) / totalRevLines) * 1000) / 10 : 0;
+
+  // Budget for current month
+  const budgets = await prisma.budget.findMany({
+    where: { month: now.getMonth() + 1, year: now.getFullYear() },
+  });
+  const budgetRevenue = budgets
+    .filter((b) => b.category === "revenue")
+    .reduce((sum, b) => sum + b.amount, 0);
+
+  // Latest cash entry
+  const cashEntries = await prisma.cashEntry.findMany({
+    orderBy: { date: "desc" },
+    take: 1,
+  });
+  const cashPosition = cashEntries.length > 0 ? cashEntries[0].balance : 0;
+
   return NextResponse.json({
     kpis: {
       monthlyRevenue: Math.round(currentRevenue),
@@ -158,6 +198,10 @@ export async function GET() {
       activeOrders,
       ordersChange: Math.round(ordersChange * 10) / 10,
       capacityRate,
+      grossMarginPct,
+      budgetRevenue: Math.round(budgetRevenue),
+      actualRevenue: Math.round(currentRevenue),
+      cashPosition: Math.round(cashPosition),
     },
     monthlyRevenue,
     productSales,

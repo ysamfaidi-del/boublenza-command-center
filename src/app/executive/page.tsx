@@ -5,11 +5,21 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
 } from "recharts";
-import { Loader2, TrendingUp, TrendingDown, Award, Target, AlertTriangle, BarChart3 } from "lucide-react";
+import { Loader2, TrendingUp, TrendingDown, Award, Target, AlertTriangle, BarChart3, Wallet, Clock, CreditCard } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { ExecutiveSummary, BenchmarkData, ScenarioProjection, YoYMetric } from "@/types/premium";
 
-interface ExecData { summary: ExecutiveSummary; benchmarks: BenchmarkData[]; scenarios: ScenarioProjection[]; yoy: YoYMetric[] }
+interface FinancialKPIs {
+  ytdBudgetRevenue: number;
+  ytdActualRevenue: number;
+  budgetAttainment: number;
+  cashPosition: number;
+  dso: number;
+  overdueCount: number;
+  overdueAmount: number;
+}
+
+interface ExecData { summary: ExecutiveSummary; benchmarks: BenchmarkData[]; scenarios: ScenarioProjection[]; yoy: YoYMetric[]; financial?: FinancialKPIs }
 
 export default function ExecutivePage() {
   const [data, setData] = useState<ExecData | null>(null);
@@ -85,6 +95,49 @@ export default function ExecutivePage() {
           <span><strong>Top marché :</strong> {summary.topMarket}</span>
         </div>
       </div>
+
+      {/* Financial KPIs */}
+      {data.financial && (
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="card flex items-center gap-3 !p-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-forest-50">
+              <Target className="h-4 w-4 text-forest-600" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-gray-900">{data.financial.budgetAttainment}%</p>
+              <p className="text-xs text-gray-500">Atteinte budget CA</p>
+              <p className="text-[10px] text-gray-400">{formatCurrency(data.financial.ytdActualRevenue)} / {formatCurrency(data.financial.ytdBudgetRevenue)}</p>
+            </div>
+          </div>
+          <div className="card flex items-center gap-3 !p-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50">
+              <Wallet className="h-4 w-4 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-gray-900">{formatCurrency(data.financial.cashPosition)}</p>
+              <p className="text-xs text-gray-500">Trésorerie</p>
+            </div>
+          </div>
+          <div className="card flex items-center gap-3 !p-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50">
+              <Clock className="h-4 w-4 text-amber-600" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-gray-900">{data.financial.dso} <span className="text-sm font-normal text-gray-400">jours</span></p>
+              <p className="text-xs text-gray-500">DSO moyen</p>
+            </div>
+          </div>
+          <div className="card flex items-center gap-3 !p-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-50">
+              <CreditCard className="h-4 w-4 text-red-600" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-gray-900">{data.financial.overdueCount}</p>
+              <p className="text-xs text-gray-500">Impayés ({formatCurrency(data.financial.overdueAmount)})</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Monte Carlo Scenarios */}

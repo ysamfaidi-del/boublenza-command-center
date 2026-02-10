@@ -24,6 +24,10 @@ export const demoDashboard = {
     activeOrders: 24,
     ordersChange: 15.2,
     capacityRate: 81,
+    grossMarginPct: 42.5,
+    budgetRevenue: 320000,
+    actualRevenue: 287500,
+    cashPosition: 1250000,
   },
   monthlyRevenue: months12.map((month, i) => ({
     month,

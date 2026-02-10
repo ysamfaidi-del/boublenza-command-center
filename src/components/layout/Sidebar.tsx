@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Factory, ShoppingCart, Package, Settings, Leaf,
-  Presentation, Upload, TrendingUp,
+  Presentation, Upload, TrendingUp, Wallet,
   Activity, BarChart3, Shield, Truck, Users, FileText, Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ const mainNav: NavItem[] = [
   { name: "Présentations", href: "/slides", icon: Presentation },
   { name: "Import Excel", href: "/import", icon: Upload },
   { name: "Prévisions & Marchés", href: "/previsions", icon: TrendingUp },
+  { name: "Finances", href: "/finances", icon: Wallet },
 ];
 
 const premiumNav: NavItem[] = [

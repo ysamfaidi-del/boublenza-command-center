@@ -8,9 +8,16 @@ export async function GET() {
   const now = new Date();
   const yearStart = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
+  // Product costs for margin calculation
+  const productCosts = await prisma.productCost.findMany({ include: { product: true } });
+  const costMap: Record<string, number> = {};
+  for (const pc of productCosts) {
+    costMap[pc.product.name] = pc.rawMaterialCost + pc.laborCost + pc.energyCost + pc.packagingCost + pc.overheadCost;
+  }
+
   const orders = await prisma.order.findMany({
     where: { createdAt: { gte: yearStart }, status: { not: "cancelled" } },
-    include: { client: true, lines: { include: { product: true } } },
+    include: { client: true, lines: { include: { product: true } }, payments: true },
   });
 
   const countryMap: Record<string, { revenue: number; orders: number }> = {};
@@ -29,13 +36,14 @@ export async function GET() {
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 8);
 
-  const productMap: Record<string, { revenue: number; quantity: number }> = {};
+  const productMap: Record<string, { revenue: number; quantity: number; cogs: number }> = {};
   for (const o of orders) {
     for (const line of o.lines) {
       const name = line.product.name;
-      if (!productMap[name]) productMap[name] = { revenue: 0, quantity: 0 };
+      if (!productMap[name]) productMap[name] = { revenue: 0, quantity: 0, cogs: 0 };
       productMap[name].revenue += line.quantity * line.unitPrice;
       productMap[name].quantity += line.quantity;
+      productMap[name].cogs += line.quantity * (costMap[name] || line.unitPrice * 0.55);
     }
   }
   const byProduct = Object.entries(productMap)
@@ -43,6 +51,8 @@ export async function GET() {
       name,
       revenue: Math.round(v.revenue),
       quantity: Math.round(v.quantity),
+      margin: Math.round(v.revenue - v.cogs),
+      marginPct: v.revenue > 0 ? Math.round((v.revenue - v.cogs) / v.revenue * 1000) / 10 : 0,
     }))
     .sort((a, b) => b.revenue - a.revenue);
 
@@ -79,6 +89,39 @@ export async function GET() {
     });
   }
 
+  // Recent orders with margin & payment status
+  const recentOrders = orders
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 15)
+    .map((o) => {
+      let orderCogs = 0;
+      for (const l of o.lines) {
+        orderCogs += l.quantity * (costMap[l.product.name] || l.unitPrice * 0.55);
+      }
+      const orderMargin = o.totalAmount - orderCogs;
+      const paymentStatus = o.payments.length > 0
+        ? o.payments.some((p) => p.status === "overdue") ? "overdue"
+          : o.payments.some((p) => p.status === "partial") ? "partial"
+          : o.payments.every((p) => p.status === "received") ? "received"
+          : "pending"
+        : "pending";
+      const paidAmount = o.payments.filter((p) => p.status === "received").reduce((s, p) => s + p.amount, 0)
+        + o.payments.filter((p) => p.status === "partial").reduce((s, p) => s + p.amount * 0.5, 0);
+      return {
+        id: o.id,
+        client: o.client.name,
+        country: o.client.country,
+        date: o.createdAt.toISOString().split("T")[0],
+        status: o.status,
+        totalAmount: Math.round(o.totalAmount),
+        margin: Math.round(orderMargin),
+        marginPct: o.totalAmount > 0 ? Math.round(orderMargin / o.totalAmount * 1000) / 10 : 0,
+        paymentStatus,
+        paidAmount: Math.round(paidAmount),
+        products: o.lines.map((l) => l.product.name),
+      };
+    });
+
   // Query resellers from DB
   const months12 = monthly.map((m) => m.month);
   const dbResellers = await prisma.reseller.findMany({ orderBy: { totalRevenue: "desc" } });
@@ -104,6 +147,6 @@ export async function GET() {
     target: r.target,
   }));
 
-  return NextResponse.json({ byCountry, byProduct, pipeline, monthly, resellers });
+  return NextResponse.json({ byCountry, byProduct, pipeline, monthly, resellers, recentOrders });
   } catch { return NextResponse.json(demoVentes); }
 }

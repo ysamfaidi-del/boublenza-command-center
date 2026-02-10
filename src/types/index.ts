@@ -48,6 +48,10 @@ export interface DashboardData {
     activeOrders: number;
     ordersChange: number;
     capacityRate: number;
+    grossMarginPct: number;
+    budgetRevenue: number;
+    actualRevenue: number;
+    cashPosition: number;
   };
   monthlyRevenue: MonthlyRevenue[];
   productSales: ProductSales[];
@@ -67,6 +71,14 @@ export interface ProductionData {
   byShift: { shift: string; quantity: number }[];
   total: number;
   totalChange: number;
+  productionVsTarget: { month: string; target: number; actual: number }[];
+  costPerKg: {
+    product: string;
+    cost: number;
+    breakdown: { raw: number; labor: number; energy: number; packaging: number; overhead: number };
+  }[];
+  yieldRate: { product: string; yieldPct: number }[];
+  qualityRate: number;
 }
 
 export interface Reseller {
@@ -88,12 +100,27 @@ export interface Reseller {
   target: number;
 }
 
+export interface RecentOrder {
+  id: string;
+  client: string;
+  country: string;
+  date: string;
+  status: string;
+  totalAmount: number;
+  margin: number;
+  marginPct: number;
+  paymentStatus: "received" | "pending" | "overdue" | "partial";
+  paidAmount: number;
+  products: string[];
+}
+
 export interface SalesData {
   byCountry: { country: string; revenue: number; orders: number }[];
-  byProduct: { name: string; revenue: number; quantity: number }[];
+  byProduct: { name: string; revenue: number; quantity: number; margin?: number; marginPct?: number }[];
   pipeline: { status: string; count: number; amount: number }[];
   monthly: { month: string; revenue: number; orders: number }[];
   resellers: Reseller[];
+  recentOrders?: RecentOrder[];
 }
 
 export interface StockData {

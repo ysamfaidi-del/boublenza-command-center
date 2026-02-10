@@ -12,6 +12,9 @@ export async function GET() {
   const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
   const yearStart = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
+  const targets = await prisma.productionTarget.findMany({ where: { year: now.getFullYear() } });
+  const productCosts = await prisma.productCost.findMany({ include: { product: true } });
+
   const currentProd = await prisma.productionEntry.aggregate({
     where: { date: { gte: currentMonthStart } },
     _sum: { quantity: true },
@@ -72,6 +75,46 @@ export async function GET() {
     quantity: Math.round(g._sum.quantity || 0),
   }));
 
-  return NextResponse.json({ monthly, byQuality, byShift, total, totalChange });
+  // Production vs Target using real DB targets
+  const productionVsTarget = MONTHS_FR.map((monthLabel, idx) => {
+    const monthTargets = targets.filter((t) => t.month === idx + 1);
+    const target = monthTargets.reduce((sum, t) => sum + t.quantity, 0);
+    const monthData = monthly.find((m) => m.month === monthLabel);
+    const actual = monthData ? monthData.CARUMA + monthData.CARANI + monthData["CAROB EXTRACT"] : 0;
+    return { month: monthLabel, target: Math.round(target), actual: Math.round(actual) };
+  });
+
+  // Cost per kg from ProductCost table
+  const costPerKg = productCosts.map((pc) => ({
+    product: pc.product.name,
+    cost: Math.round((pc.rawMaterialCost + pc.laborCost + pc.energyCost + pc.packagingCost + pc.overheadCost) * 100) / 100,
+    breakdown: {
+      raw: pc.rawMaterialCost,
+      labor: pc.laborCost,
+      energy: pc.energyCost,
+      packaging: pc.packagingCost,
+      overhead: pc.overheadCost,
+    },
+  }));
+
+  // Yield rate: production output vs raw input
+  const RAW_INPUT_RATIO: Record<string, number> = { CARUMA: 1.3, CARANI: 1.1, "CAROB EXTRACT": 2.0 };
+  const productTotals: Record<string, number> = {};
+  for (const e of entries) {
+    const name = e.product.name;
+    productTotals[name] = (productTotals[name] || 0) + e.quantity;
+  }
+  const yieldRate = Object.entries(productTotals).map(([product, output]) => {
+    const ratio = RAW_INPUT_RATIO[product] || 1;
+    const rawInput = output * ratio;
+    return { product, yieldPct: Math.round((output / rawInput) * 1000) / 10 };
+  });
+
+  // Quality rate: percentage of "A" entries vs total
+  const totalEntries = byQuality.reduce((s, q) => s + q.count, 0);
+  const qualityACount = byQuality.find((q) => q.quality === "A")?.count || 0;
+  const qualityRate = totalEntries > 0 ? Math.round((qualityACount / totalEntries) * 1000) / 10 : 0;
+
+  return NextResponse.json({ monthly, byQuality, byShift, total, totalChange, productionVsTarget, costPerKg, yieldRate, qualityRate });
   } catch { return NextResponse.json(demoProduction); }
 }

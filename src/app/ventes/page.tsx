@@ -7,11 +7,18 @@ import {
 } from "recharts";
 import {
   DollarSign, ShoppingCart, Globe, Users, TrendingUp,
-  Target, Building2, ArrowUpRight, ArrowDownRight,
+  Target, Building2, ArrowUpRight, ArrowDownRight, CheckCircle, Clock, AlertTriangle,
 } from "lucide-react";
 import { cn, formatCurrency, formatNumber, STATUS_LABELS, PRODUCT_COLORS } from "@/lib/utils";
-import type { SalesData, Reseller } from "@/types";
+import type { SalesData, Reseller, RecentOrder } from "@/types";
 import MarketSummaryCard from "@/components/dashboard/MarketSummaryCard";
+
+const PAYMENT_STATUS: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
+  received: { label: "Payé", color: "bg-green-100 text-green-800", icon: CheckCircle },
+  pending: { label: "En attente", color: "bg-yellow-100 text-yellow-800", icon: Clock },
+  overdue: { label: "En retard", color: "bg-red-100 text-red-800", icon: AlertTriangle },
+  partial: { label: "Partiel", color: "bg-orange-100 text-orange-800", icon: Clock },
+};
 
 const PIPELINE_COLORS: Record<string, string> = {
   draft: "bg-gray-100 border-gray-300 text-gray-700",
@@ -409,6 +416,8 @@ export default function VentesPage() {
               <th className="pb-3 text-left font-medium text-gray-500">Produit</th>
               <th className="pb-3 text-right font-medium text-gray-500">Quantit&eacute;</th>
               <th className="pb-3 text-right font-medium text-gray-500">Chiffre d&apos;affaires</th>
+              <th className="pb-3 text-right font-medium text-gray-500">Marge</th>
+              <th className="pb-3 text-right font-medium text-gray-500">Marge %</th>
               <th className="pb-3 text-right font-medium text-gray-500">Part</th>
             </tr>
           </thead>
@@ -429,6 +438,14 @@ export default function VentesPage() {
                   </td>
                   <td className="py-3 text-right text-gray-700">{formatNumber(p.quantity)} kg</td>
                   <td className="py-3 text-right font-medium text-gray-900">{formatCurrency(p.revenue)}</td>
+                  <td className="py-3 text-right font-medium text-green-700">{p.margin ? formatCurrency(p.margin) : "—"}</td>
+                  <td className="py-3 text-right">
+                    {p.marginPct ? (
+                      <span className={cn("text-xs font-bold", (p.marginPct || 0) >= 35 ? "text-green-600" : "text-orange-600")}>
+                        {p.marginPct}%
+                      </span>
+                    ) : "—"}
+                  </td>
                   <td className="py-3 text-right text-gray-500">{share}%</td>
                 </tr>
               );
@@ -436,6 +453,63 @@ export default function VentesPage() {
           </tbody>
         </table>
       </div>
+
+      {/* ═══ Recent Orders with Margin & Payment ═══ */}
+      {data.recentOrders && data.recentOrders.length > 0 && (
+        <div className="card">
+          <h3 className="card-header">
+            <ShoppingCart className="mr-2 inline h-4 w-4" />
+            Commandes récentes — Marge &amp; Paiements
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 text-xs text-gray-500">
+                  <th className="pb-2 text-left">Client</th>
+                  <th className="pb-2 text-left">Pays</th>
+                  <th className="pb-2 text-left">Date</th>
+                  <th className="pb-2 text-center">Statut</th>
+                  <th className="pb-2 text-right">Montant</th>
+                  <th className="pb-2 text-right">Marge</th>
+                  <th className="pb-2 text-right">Marge %</th>
+                  <th className="pb-2 text-center">Paiement</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {data.recentOrders.map((o: RecentOrder) => {
+                  const ps = PAYMENT_STATUS[o.paymentStatus] || PAYMENT_STATUS.pending;
+                  const PayIcon = ps.icon;
+                  return (
+                    <tr key={o.id} className="hover:bg-gray-50/50">
+                      <td className="py-2 font-medium text-gray-900">{o.client}</td>
+                      <td className="py-2 text-gray-600">{o.country}</td>
+                      <td className="py-2 text-gray-500">{o.date}</td>
+                      <td className="py-2 text-center">
+                        <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase", PIPELINE_COLORS[o.status] || "bg-gray-50")}>
+                          {STATUS_LABELS[o.status] || o.status}
+                        </span>
+                      </td>
+                      <td className="py-2 text-right font-medium text-gray-900">{formatCurrency(o.totalAmount)}</td>
+                      <td className="py-2 text-right font-medium text-green-700">{formatCurrency(o.margin)}</td>
+                      <td className="py-2 text-right">
+                        <span className={cn("text-xs font-bold", o.marginPct >= 35 ? "text-green-600" : "text-orange-600")}>
+                          {o.marginPct}%
+                        </span>
+                      </td>
+                      <td className="py-2 text-center">
+                        <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold", ps.color)}>
+                          <PayIcon className="h-3 w-3" />
+                          {ps.label}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

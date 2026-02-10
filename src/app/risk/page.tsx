@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { Loader2, Shield, AlertTriangle, CheckCircle } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
+import DemoBadge from "@/components/ui/DemoBadge";
 import type { VaRResult, StressScenario, HedgeScenario, CounterpartyScore } from "@/types/premium";
 
 interface RiskData { var: VaRResult; stressScenarios: StressScenario[]; hedgeScenarios: HedgeScenario[]; counterparties: CounterpartyScore[] }
@@ -22,6 +23,7 @@ export default function RiskPage() {
 
   return (
     <div className="space-y-8">
+      <DemoBadge label="VaR et stress tests calculés sur positions réelles — scénarios de couverture indicatifs" />
       {/* VaR KPIs */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="card border-l-4 border-l-yellow-500">

@@ -7,13 +7,22 @@ export async function calculatePnL(start: Date, end: Date): Promise<PnLBreakdown
     include: { lines: { include: { product: true } } },
   });
 
+  // Query real product costs from DB
+  const productCosts = await prisma.productCost.findMany({ include: { product: true } });
+  const costPerKgMap: Record<string, number> = {};
+  for (const pc of productCosts) {
+    costPerKgMap[pc.product.name] = pc.rawMaterialCost + pc.laborCost + pc.energyCost + pc.packagingCost + pc.overheadCost;
+  }
+
   const map: Record<string, PnLBreakdown> = {};
 
   for (const order of orders) {
     for (const line of order.lines) {
       const name = line.product.name;
       const revenue = line.quantity * line.unitPrice;
-      const cogs = revenue * 0.58;
+      // Use real cost per kg if available, fall back to 58% estimate
+      const unitCost = costPerKgMap[name];
+      const cogs = unitCost != null ? line.quantity * unitCost : revenue * 0.58;
       const gross = revenue - cogs;
       const opex = revenue * 0.15;
       const ebitda = gross - opex;

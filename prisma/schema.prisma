@@ -11,14 +11,16 @@ datasource db {
 }
 
 model Product {
-  id         String            @id @default(cuid())
+  id         String             @id @default(cuid())
   name       String
   category   String
-  unit       String            @default("kg")
+  unit       String             @default("kg")
   pricePerKg Float
   orders     OrderLine[]
   production ProductionEntry[]
   stock      StockEntry[]
+  targets    ProductionTarget[]
+  costs      ProductCost[]
 
   @@schema("boublenza")
 }
@@ -45,6 +47,7 @@ model Order {
   createdAt    DateTime    @default(now())
   deliveryDate DateTime?
   lines        OrderLine[]
+  payments     Payment[]
 
   @@schema("boublenza")
 }
@@ -103,6 +106,84 @@ model Reseller {
   target          Float     @default(0)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+
+  @@schema("boublenza")
+}
+
+// ── Financial Tracking ────────────────────────────────
+
+model Expense {
+  id        String   @id @default(cuid())
+  category  String   // raw_material, labor, energy, packaging, transport, rent, maintenance, other
+  label     String
+  amount    Float
+  date      DateTime
+  recurring Boolean  @default(false)
+
+  @@schema("boublenza")
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id])
+  amount        Float
+  method        String   @default("wire_transfer") // wire_transfer, check, lc
+  status        String   @default("pending") // pending, received, overdue, partial
+  dueDate       DateTime
+  receivedDate  DateTime?
+  createdAt     DateTime @default(now())
+
+  @@schema("boublenza")
+}
+
+model Budget {
+  id       String @id @default(cuid())
+  category String // revenue, cogs, opex, capex
+  label    String
+  month    Int
+  year     Int
+  amount   Float
+
+  @@unique([category, label, month, year])
+  @@schema("boublenza")
+}
+
+model ProductionTarget {
+  id        String @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  month     Int
+  year      Int
+  quantity  Float
+  capacity  Float  @default(40000)
+
+  @@unique([productId, month, year])
+  @@schema("boublenza")
+}
+
+model ProductCost {
+  id              String  @id @default(cuid())
+  productId       String
+  product         Product @relation(fields: [productId], references: [id])
+  rawMaterialCost Float   // per kg
+  laborCost       Float   // per kg
+  energyCost      Float   // per kg
+  packagingCost   Float   // per kg
+  overheadCost    Float   // per kg
+  effectiveDate   DateTime @default(now())
+
+  @@schema("boublenza")
+}
+
+model CashEntry {
+  id       String   @id @default(cuid())
+  type     String   // inflow, outflow
+  category String   // sales, expense, investment, loan, tax
+  label    String
+  amount   Float
+  date     DateTime
+  balance  Float    // running balance at this point
 
   @@schema("boublenza")
 }

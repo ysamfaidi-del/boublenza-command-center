@@ -5,7 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from "recharts";
-import { Factory, TrendingUp, TrendingDown } from "lucide-react";
+import { Factory, TrendingUp, TrendingDown, DollarSign, Gauge, ShieldCheck } from "lucide-react";
 import { cn, formatNumber, formatTonnes, PRODUCT_COLORS } from "@/lib/utils";
 import type { ProductionData } from "@/types";
 
@@ -75,6 +75,101 @@ export default function ProductionPage() {
                 {name}
               </span>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* New KPI Row: Cost, Yield, Quality */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        {/* Coût de revient */}
+        <div className="card">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50">
+            <DollarSign className="h-5 w-5 text-amber-600" />
+          </div>
+          <div className="mt-4">
+            <p className="text-sm font-medium text-gray-500">Coût de revient (par kg)</p>
+            <div className="mt-2 space-y-2">
+              {data.costPerKg?.map((c) => (
+                <div key={c.product}>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-gray-700">{c.product}</span>
+                    <span className="font-bold text-gray-900">{c.cost.toFixed(2)} DZD</span>
+                  </div>
+                  <div className="mt-1 flex h-2 overflow-hidden rounded-full bg-gray-100">
+                    {(() => {
+                      const b = c.breakdown;
+                      const total = b.raw + b.labor + b.energy + b.packaging + b.overhead;
+                      if (total === 0) return null;
+                      return (
+                        <>
+                          <div className="bg-amber-500" style={{ width: `${(b.raw / total) * 100}%` }} />
+                          <div className="bg-blue-400" style={{ width: `${(b.labor / total) * 100}%` }} />
+                          <div className="bg-orange-400" style={{ width: `${(b.energy / total) * 100}%` }} />
+                          <div className="bg-green-400" style={{ width: `${(b.packaging / total) * 100}%` }} />
+                          <div className="bg-gray-400" style={{ width: `${(b.overhead / total) * 100}%` }} />
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-gray-500">
+              <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-amber-500" />Mat.</span>
+              <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-blue-400" />Main-d&apos;oeuvre</span>
+              <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-orange-400" />Énergie</span>
+              <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-green-400" />Emball.</span>
+              <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-gray-400" />Frais gén.</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Taux de rendement */}
+        <div className="card">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+            <Gauge className="h-5 w-5 text-blue-600" />
+          </div>
+          <div className="mt-4">
+            <p className="text-sm font-medium text-gray-500">Taux de rendement</p>
+            <div className="mt-2 space-y-3">
+              {data.yieldRate?.map((y) => (
+                <div key={y.product}>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-gray-700">{y.product}</span>
+                    <span className="font-bold text-gray-900">{y.yieldPct}%</span>
+                  </div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-gray-100">
+                    <div
+                      className="h-full rounded-full bg-blue-500"
+                      style={{ width: `${Math.min(y.yieldPct, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Taux qualité A */}
+        <div className="card">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
+            <ShieldCheck className="h-5 w-5 text-green-600" />
+          </div>
+          <div className="mt-4">
+            <p className="text-2xl font-bold text-gray-900">{data.qualityRate ?? 0}%</p>
+            <p className="mt-1 text-sm text-gray-500">Taux qualité A</p>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
+              <div
+                className={cn(
+                  "h-full rounded-full",
+                  (data.qualityRate ?? 0) >= 90 ? "bg-green-500" : (data.qualityRate ?? 0) >= 70 ? "bg-yellow-500" : "bg-red-500"
+                )}
+                style={{ width: `${Math.min(data.qualityRate ?? 0, 100)}%` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-gray-400">
+              {(data.qualityRate ?? 0) >= 90 ? "Excellent" : (data.qualityRate ?? 0) >= 70 ? "Acceptable" : "À améliorer"}
+            </p>
           </div>
         </div>
       </div>
