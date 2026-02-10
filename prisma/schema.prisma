@@ -1,11 +1,13 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  schemas   = ["boublenza"]
 }
 
 model Product {
@@ -17,6 +19,8 @@ model Product {
   orders     OrderLine[]
   production ProductionEntry[]
   stock      StockEntry[]
+
+  @@schema("boublenza")
 }
 
 model Client {
@@ -27,6 +31,8 @@ model Client {
   email   String?
   phone   String?
   orders  Order[]
+
+  @@schema("boublenza")
 }
 
 model Order {
@@ -39,6 +45,8 @@ model Order {
   createdAt    DateTime    @default(now())
   deliveryDate DateTime?
   lines        OrderLine[]
+
+  @@schema("boublenza")
 }
 
 model OrderLine {
@@ -49,6 +57,8 @@ model OrderLine {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Float
   unitPrice Float
+
+  @@schema("boublenza")
 }
 
 model ProductionEntry {
@@ -59,6 +69,8 @@ model ProductionEntry {
   date      DateTime
   shift     String?
   quality   String?
+
+  @@schema("boublenza")
 }
 
 model StockEntry {
@@ -69,6 +81,8 @@ model StockEntry {
   type      String
   reason    String?
   date      DateTime @default(now())
+
+  @@schema("boublenza")
 }
 
 model Reseller {
@@ -89,4 +103,6 @@ model Reseller {
   target          Float     @default(0)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+
+  @@schema("boublenza")
 }
