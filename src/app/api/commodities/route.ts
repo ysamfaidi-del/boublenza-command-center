@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
-import { generateSpreadHistory, generateCorrelationMatrix, generateMarketSignals } from "@/lib/analytics/spread-calculator";
+import {
+  generateSpreadHistory, generateMarketSignals,
+  generateCommodityTimeSeries, computeCorrelationMatrix,
+  computeRollingCorrelations, generateCorrelationInsights,
+} from "@/lib/analytics/spread-calculator";
 
 export async function GET() {
   const spreads = generateSpreadHistory(180);
-  const correlations = generateCorrelationMatrix();
+  const timeSeries = generateCommodityTimeSeries(180);
+  const correlations = computeCorrelationMatrix(timeSeries);
+  const rollingCorrelations = computeRollingCorrelations(timeSeries);
+  const insights = generateCorrelationInsights(correlations);
   const signals = generateMarketSignals(spreads);
+  const commodityList = [...new Set(correlations.map((c) => c.x))];
 
   const latest = spreads[spreads.length - 1];
   const fundamentals = [
@@ -16,5 +24,5 @@ export async function GET() {
     { label: "Ratio substitution", value: "1:0.85", trend: 15 },
   ];
 
-  return NextResponse.json({ spreads, correlations, signals, fundamentals });
+  return NextResponse.json({ spreads, correlations, signals, fundamentals, timeSeries, rollingCorrelations, insights, commodityList });
 }

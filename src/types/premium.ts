@@ -76,6 +76,28 @@ export interface CorrelationPair {
   x: string;
   y: string;
   value: number;
+  significance: "strong" | "moderate" | "weak" | "none";
+  trend: "rising" | "falling" | "stable";
+  prevValue: number;
+}
+
+export interface CorrelationInsight {
+  type: "strongest" | "weakest" | "divergence" | "opportunity";
+  title: string;
+  description: string;
+  pairs: [string, string];
+  value: number;
+}
+
+export interface CommodityTimeSeries {
+  date: string;
+  prices: Record<string, number>;
+}
+
+export interface RollingCorrelation {
+  date: string;
+  pair: string;
+  value: number;
 }
 
 export interface MarketSignal {
@@ -92,6 +114,10 @@ export interface CommodityData {
   correlations: CorrelationPair[];
   signals: MarketSignal[];
   fundamentals: { label: string; value: string; trend: number }[];
+  timeSeries: CommodityTimeSeries[];
+  rollingCorrelations: RollingCorrelation[];
+  insights: CorrelationInsight[];
+  commodityList: string[];
 }
 
 // ── Risk Management ───────────────────────────────────
