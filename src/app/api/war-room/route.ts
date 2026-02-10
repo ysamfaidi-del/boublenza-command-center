@@ -71,13 +71,24 @@ export async function GET() {
       orders: d.orders,
     }));
 
+  // Real cash position from DB
+  const latestCash = await prisma.cashEntry.findFirst({ orderBy: { date: "desc" } });
+  const cashPosition = latestCash?.balance || 0;
+
+  // Trading book MTM for War Room integration
+  const tradingPositions = await prisma.tradingPosition.findMany({ where: { status: "open" } });
+  const tradingPnl = tradingPositions.reduce((s, p) => s + p.unrealizedPnl, 0);
+  const tradingExposure = tradingPositions.reduce((s, p) => s + Math.abs(p.quantity * p.markPrice), 0);
+
   const kpis: WarRoomData["kpis"] = {
     revenue: { label: "Chiffre d'affaires", value: rev, currency: "USD", trend, severity: "normal" },
     grossMargin: { label: "Marge brute", value: gm, trend: 0, severity: "normal" },
     netMargin: { label: "Marge nette", value: nm, trend: 0, severity: nm < 0 ? "critical" : "normal" },
     ebitda: { label: "EBITDA", value: ebitda, trend: 0, severity: "normal" },
-    openPositions: { label: "Positions ouvertes", value: positions.length, trend: 0, severity: positions.length > 20 ? "warning" : "normal" },
-    cash: { label: "Trésorerie", value: 450000, currency: "USD", trend: 5, severity: "normal" },
+    openPositions: { label: "Positions ouvertes", value: positions.length + tradingPositions.length, trend: 0, severity: (positions.length + tradingPositions.length) > 20 ? "warning" : "normal" },
+    cash: { label: "Trésorerie", value: Math.round(cashPosition), currency: "USD", trend: 5, severity: cashPosition < 200000 ? "warning" : "normal" },
+    tradingPnl: { label: "P&L Trading (unrealized)", value: Math.round(tradingPnl), currency: "USD", trend: 0, severity: tradingPnl < -50000 ? "warning" : "normal" },
+    tradingExposure: { label: "Exposition Trading", value: Math.round(tradingExposure), currency: "USD", trend: 0, severity: tradingExposure > 3000000 ? "warning" : "normal" },
   };
 
   const data: WarRoomData = { kpis, pnl, positions, currencies, alerts, flows, lastUpdate: now.toISOString() };

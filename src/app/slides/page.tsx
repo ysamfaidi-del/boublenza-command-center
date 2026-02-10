@@ -6,6 +6,7 @@ import ModelSelector from "@/components/slides/ModelSelector";
 import TemplateSelector from "@/components/slides/TemplateSelector";
 import SlidePreview from "@/components/slides/SlidePreview";
 import type { AIProviderInfo, SlideContent } from "@/types";
+import DemoBadge from "@/components/ui/DemoBadge";
 
 export default function SlidesPage() {
   const [providers, setProviders] = useState<AIProviderInfo[]>([]);
@@ -94,6 +95,7 @@ export default function SlidesPage() {
 
   return (
     <div className="space-y-8">
+      <DemoBadge />
       {/* Provider Warning */}
       {noProviderAvailable && (
         <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">

@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Loader2, Truck, AlertTriangle, CheckCircle, Clock, Package } from "lucide-react";
 import { cn, formatNumber } from "@/lib/utils";
 import type { Shipment, LeadTimeData, Bottleneck, QualityLot } from "@/types/premium";
+import DemoBadge from "@/components/ui/DemoBadge";
 
 interface SCData { shipments: Shipment[]; leadTimes: LeadTimeData[]; bottlenecks: Bottleneck[]; qualityLots: QualityLot[] }
 
@@ -32,6 +33,7 @@ export default function SupplyChainPage() {
 
   return (
     <div className="space-y-8">
+      <DemoBadge label="Données logistique simulées — en attente d'intégration ERP" />
       {/* KPIs */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="card"><p className="text-xs text-gray-500">En transit</p><p className="mt-1 text-2xl font-bold text-purple-700">{inTransit}</p></div>

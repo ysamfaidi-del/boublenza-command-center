@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Loader2, DollarSign, Users, TrendingUp, FileText, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { cn, formatCurrency, formatNumber } from "@/lib/utils";
 import type { Deal, ClientScore, PricingRecommendation, RFQ } from "@/types/premium";
+import DemoBadge from "@/components/ui/DemoBadge";
 
 interface CommData { pipeline: Deal[]; scoring: ClientScore[]; pricing: PricingRecommendation[]; rfqs: RFQ[] }
 
@@ -57,6 +58,7 @@ export default function CommercialPage() {
 
   return (
     <div className="space-y-8">
+      <DemoBadge label="Pipeline et scoring simulés — connecter CRM" />
       {/* KPIs */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="card">

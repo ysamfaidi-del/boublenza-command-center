@@ -33,6 +33,7 @@ model Client {
   email   String?
   phone   String?
   orders  Order[]
+  trades  Trade[]
 
   @@schema("boublenza")
 }
@@ -185,5 +186,204 @@ model CashEntry {
   date     DateTime
   balance  Float    // running balance at this point
 
+  @@schema("boublenza")
+}
+
+// ── Trading Desk ─────────────────────────────────────
+
+model Trade {
+  id              String    @id @default(cuid())
+  tradeRef        String    @unique        // e.g. "TRD-2026-0001"
+  counterpartyId  String
+  counterparty    Client    @relation(fields: [counterpartyId], references: [id])
+  instrument      String                   // "CARUMA", "CARANI", "CAROB EXTRACT", "COCOA_FUTURE", "FX_EURUSD"
+  side            String                   // "buy" | "sell"
+  quantity        Float                    // kg for physicals, lots for futures
+  price           Float                    // trade price
+  currency        String    @default("USD")
+  tradeDate       DateTime
+  settlementDate  DateTime?
+  method          String    @default("physical") // physical, futures, swap, option
+  status          String    @default("open")     // open, partially_filled, closed, settled, cancelled
+  pnlRealized     Float     @default(0)
+  pnlUnrealized   Float     @default(0)
+  positions       TradingPosition[]
+  attributions    PnLAttribution[]
+  settlements     SettlementTransaction[]
+  createdAt       DateTime  @default(now())
+
+  @@schema("boublenza")
+}
+
+model TradingPosition {
+  id            String   @id @default(cuid())
+  tradeId       String
+  trade         Trade    @relation(fields: [tradeId], references: [id])
+  instrument    String
+  side          String   // "long" | "short"
+  quantity      Float
+  avgPrice      Float    // average entry price
+  markPrice     Float    // current market price (MTM)
+  currency      String   @default("USD")
+  unrealizedPnl Float    @default(0)
+  realizedPnl   Float    @default(0)
+  deltaExposure Float    @default(0)
+  openDate      DateTime
+  closeDate     DateTime?
+  status        String   @default("open") // open, closed, rolled
+
+  @@schema("boublenza")
+}
+
+model Derivative {
+  id          String   @id @default(cuid())
+  type        String   // call, put, swap, forward
+  underlying  String   // "COCOA", "CAROB", "EURUSD"
+  side        String   // "buy" | "sell"
+  quantity    Float
+  strike      Float?   // for options
+  expiry      DateTime
+  premium     Float    @default(0)
+  notional    Float
+  delta       Float    @default(0)
+  gamma       Float    @default(0)
+  vega        Float    @default(0)
+  theta       Float    @default(0)
+  rho         Float    @default(0)
+  markToMarket Float   @default(0)
+  status      String   @default("active") // active, expired, exercised, closed
+  createdAt   DateTime @default(now())
+
+  @@schema("boublenza")
+}
+
+model FuturesContract {
+  id              String   @id @default(cuid())
+  exchange        String   // ICE, LIFFE, CME
+  symbol          String   // "CC" (cocoa), "SB" (sugar), "KC" (coffee)
+  contractMonth   String   // "2026-03", "2026-06"
+  underlying      String   // "COCOA", "SUGAR", "COFFEE"
+  bid             Float
+  ask             Float
+  settlement      Float    // daily settlement price
+  openInterest    Int      @default(0)
+  volume          Int      @default(0)
+  priorSettlement Float    @default(0)
+  date            DateTime
+  createdAt       DateTime @default(now())
+
+  @@unique([symbol, contractMonth, date])
+  @@schema("boublenza")
+}
+
+model MarketData {
+  id         String   @id @default(cuid())
+  source     String   // "FRED", "ICE", "FRANKFURTER", "INTERNAL"
+  instrument String   // "COCOA_USD", "CAROB_USD", "SUGAR_USD", "EURUSD", etc.
+  date       DateTime
+  open       Float?
+  high       Float?
+  low        Float?
+  close      Float    // closing price — required for VaR
+  volume     Float?
+  createdAt  DateTime @default(now())
+
+  @@unique([instrument, date])
+  @@index([instrument, date])
+  @@schema("boublenza")
+}
+
+model TradingLimit {
+  id             String  @id @default(cuid())
+  entity         String  // "counterparty", "product", "desk", "trader"
+  entityRef      String  // client ID, product name, or desk name
+  riskType       String  // "notional", "var", "delta", "concentration"
+  limitAmount    Float
+  currentUsage   Float   @default(0)
+  utilizationPct Float   @default(0)
+  currency       String  @default("USD")
+  breached       Boolean @default(false)
+  lastUpdated    DateTime @default(now())
+
+  @@unique([entity, entityRef, riskType])
+  @@schema("boublenza")
+}
+
+model VaRBacktest {
+  id             String   @id @default(cuid())
+  date           DateTime
+  method         String   // "historical", "parametric", "montecarlo"
+  confidence     Float    // 0.95, 0.99
+  horizon        Int      @default(1) // days
+  varForecast    Float    // forecasted VaR
+  realizedPnl    Float    // actual P&L that day
+  breach         Boolean  // abs(realizedPnl) > varForecast
+  portfolio      String   @default("total") // "total", "physical", "derivatives"
+
+  @@unique([date, method, confidence, portfolio])
+  @@schema("boublenza")
+}
+
+model PnLAttribution {
+  id          String   @id @default(cuid())
+  tradeId     String?
+  trade       Trade?   @relation(fields: [tradeId], references: [id])
+  date        DateTime
+  portfolio   String   @default("total")
+  marketMove  Float    @default(0) // delta × ΔS
+  carry       Float    @default(0) // time decay / storage cost
+  spread      Float    @default(0) // bid-ask capture
+  theta       Float    @default(0) // options time decay
+  vega        Float    @default(0) // vol change
+  gamma       Float    @default(0) // convexity
+  fx          Float    @default(0) // FX component
+  other       Float    @default(0) // residual
+  total       Float    @default(0) // sum of all components
+
+  @@schema("boublenza")
+}
+
+model SettlementTransaction {
+  id        String   @id @default(cuid())
+  tradeId   String
+  trade     Trade    @relation(fields: [tradeId], references: [id])
+  date      DateTime
+  amount    Float
+  currency  String   @default("USD")
+  method    String   @default("wire_transfer") // wire_transfer, lc, clearing_house
+  status    String   @default("pending") // pending, confirmed, settled, failed
+  reference String?
+
+  @@schema("boublenza")
+}
+
+model QualityTest {
+  id                String   @id @default(cuid())
+  productionEntryId String?
+  product           String   // "CARUMA", "CARANI", "CAROB EXTRACT"
+  lotNumber         String
+  testType          String   // "moisture", "particle_size", "color", "purity", "microbiological"
+  spec              String   // target specification (e.g. "< 8%")
+  actual            String   // measured value (e.g. "6.2%")
+  numericActual     Float?   // numeric value for analytics
+  result            String   // "pass", "fail", "marginal"
+  testDate          DateTime
+  certifiedBy       String?
+
+  @@index([product, testDate])
+  @@schema("boublenza")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String   @default("system")
+  action    String   // "create", "update", "delete", "login", "export", "approve"
+  entity    String   // "trade", "order", "position", "settlement", etc.
+  entityId  String?
+  details   String?  // JSON string with change details
+  ipAddress String?
+  timestamp DateTime @default(now())
+
+  @@index([entity, timestamp])
   @@schema("boublenza")
 }

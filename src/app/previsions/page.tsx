@@ -7,6 +7,7 @@ import CocoaChart from "@/components/previsions/CocoaChart";
 import MarketTrends from "@/components/previsions/MarketTrends";
 import DemandForecast from "@/components/previsions/DemandForecast";
 import NewsDigest from "@/components/previsions/NewsDigest";
+import DemoBadge from "@/components/ui/DemoBadge";
 
 interface ProdRec {
   product: string;
@@ -45,6 +46,7 @@ export default function PrevisionsPage() {
 
   return (
     <div className="space-y-6">
+      <DemoBadge label="Modèles prévisionnels en calibration" />
       {/* Tab Navigation */}
       <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
         {TABS.map((t) => (

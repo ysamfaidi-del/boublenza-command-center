@@ -120,12 +120,128 @@ export interface CommodityData {
   commodityList: string[];
 }
 
+// ── Trading Book ─────────────────────────────────────
+export interface TradeRecord {
+  id: string;
+  tradeRef: string;
+  counterparty: string;
+  instrument: string;
+  side: "buy" | "sell";
+  quantity: number;
+  price: number;
+  currency: string;
+  tradeDate: string;
+  settlementDate: string | null;
+  method: "physical" | "futures" | "swap" | "option";
+  status: "open" | "partially_filled" | "closed" | "settled" | "cancelled";
+  pnlRealized: number;
+  pnlUnrealized: number;
+}
+
+export interface PositionBookEntry {
+  id: string;
+  instrument: string;
+  side: "long" | "short";
+  quantity: number;
+  avgPrice: number;
+  markPrice: number;
+  unrealizedPnl: number;
+  realizedPnl: number;
+  deltaExposure: number;
+  currency: string;
+  openDate: string;
+  status: "open" | "closed" | "rolled";
+}
+
+export interface DerivativePosition {
+  id: string;
+  type: "call" | "put" | "swap" | "forward";
+  underlying: string;
+  side: "buy" | "sell";
+  quantity: number;
+  strike: number | null;
+  expiry: string;
+  premium: number;
+  notional: number;
+  delta: number;
+  gamma: number;
+  vega: number;
+  theta: number;
+  rho: number;
+  markToMarket: number;
+  status: "active" | "expired" | "exercised" | "closed";
+}
+
+export interface FuturesCurvePoint {
+  contractMonth: string;
+  bid: number;
+  ask: number;
+  settlement: number;
+  openInterest: number;
+  volume: number;
+  basis: number; // vs spot
+}
+
+export interface TradingLimitStatus {
+  entity: string;
+  entityRef: string;
+  riskType: string;
+  limitAmount: number;
+  currentUsage: number;
+  utilizationPct: number;
+  breached: boolean;
+}
+
+export interface PnLAttributionEntry {
+  date: string;
+  marketMove: number;
+  carry: number;
+  spread: number;
+  theta: number;
+  vega: number;
+  gamma: number;
+  fx: number;
+  other: number;
+  total: number;
+}
+
+export interface VaRBacktestPoint {
+  date: string;
+  varForecast: number;
+  realizedPnl: number;
+  breach: boolean;
+}
+
+export interface TradingBookData {
+  positions: PositionBookEntry[];
+  trades: TradeRecord[];
+  derivatives: DerivativePosition[];
+  futuresCurve: FuturesCurvePoint[];
+  limits: TradingLimitStatus[];
+  pnlAttribution: PnLAttributionEntry[];
+  varBacktest: VaRBacktestPoint[];
+  summary: {
+    totalMTM: number;
+    totalUnrealizedPnl: number;
+    totalRealizedPnl: number;
+    netDelta: number;
+    netGamma: number;
+    netVega: number;
+    openPositionCount: number;
+    limitsBreached: number;
+  };
+}
+
 // ── Risk Management ───────────────────────────────────
 export interface VaRResult {
   var95: number;
   var99: number;
   expectedShortfall: number;
+  method: "historical" | "parametric" | "montecarlo";
+  horizon: number;
+  sampleSize: number;
   exposureByType: { type: string; amount: number; pct: number }[];
+  historicalPnL?: number[];
 }
 
 export interface StressScenario {
@@ -135,6 +251,7 @@ export interface StressScenario {
   impactRevenue: number;
   impactMargin: number;
   riskLevel: "low" | "medium" | "high" | "critical";
+  parameters?: Record<string, number>;
 }
 
 export interface HedgeScenario {
@@ -143,6 +260,8 @@ export interface HedgeScenario {
   protection: number;
   netBenefit: number;
   recommendation: boolean;
+  instruments?: string[];
+  varReduction?: number;
 }
 
 export interface CounterpartyScore {
@@ -154,6 +273,8 @@ export interface CounterpartyScore {
   riskRating: "A" | "B" | "C" | "D";
   totalExposure: number;
   avgPaymentDays: number;
+  creditLimit?: number;
+  utilizationPct?: number;
 }
 
 // ── Supply Chain ──────────────────────────────────────
