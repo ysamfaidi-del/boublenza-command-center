@@ -84,3 +84,52 @@
   50% { filter: drop-shadow(0 0 12px rgba(0,255,136,1)); }
 }
 .animate-origin-breathe { animation: origin-breathe 3s ease-in-out infinite; }
+
+/* ── V2 Google Connect Sales Theme ── */
+.v2-card {
+  @apply rounded-lg border border-[#e8eaed] bg-white p-5;
+}
+
+.v2-card-header {
+  @apply flex items-center justify-between mb-3;
+}
+
+.v2-card-title {
+  @apply text-sm font-medium text-[#3c4043];
+}
+
+.v2-filter-chip {
+  @apply inline-flex items-center gap-1 rounded-full border border-[#e8eaed] px-3 py-1 text-xs font-medium text-[#3c4043] hover:bg-[#f1f3f4] cursor-pointer transition-colors;
+}
+
+.v2-tab {
+  @apply px-3 py-2 text-xs font-medium text-[#80868b] border-b-2 border-transparent hover:text-[#3c4043] transition-colors;
+}
+
+.v2-tab-active {
+  @apply text-[#1a73e8] border-[#1a73e8];
+}
+
+.v2-table th {
+  @apply text-[11px] font-medium text-[#80868b] uppercase tracking-wider pb-2 text-left;
+}
+
+.v2-table td {
+  @apply text-xs text-[#3c4043] py-2.5 border-b border-[#f1f3f4];
+}
+
+.v2-kpi-label {
+  @apply text-[11px] font-normal text-[#80868b];
+}
+
+.v2-kpi-value {
+  @apply text-xl font-normal text-[#202124];
+}
+
+.v2-kpi-sub {
+  @apply text-[11px] text-[#80868b] mt-0.5;
+}
+
+.v2-section-title {
+  @apply text-sm font-medium text-[#202124];
+}
