@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Factory, ShoppingCart, Package, Settings, Leaf,
   Presentation, Upload, TrendingUp, Wallet, BookOpen,
-  Activity, BarChart3, Shield, Truck, Users, FileText, Globe,
+  Activity, BarChart3, Shield, Truck, Users, FileText, Globe, ArrowRightLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -112,6 +112,14 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="border-t border-gray-200 p-4">
+        <Link
+          href="/v2/overview"
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gcs-blue hover:bg-gcs-blue-light transition-colors"
+        >
+          <ArrowRightLeft className="h-4 w-4" />
+          Passer en V2
+          <span className="ml-auto rounded-full bg-gcs-blue px-2 py-0.5 text-[9px] font-bold text-white">NEW</span>
+        </Link>
         <Link
           href="#"
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"

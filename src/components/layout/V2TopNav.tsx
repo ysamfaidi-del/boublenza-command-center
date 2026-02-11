@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, ChevronDown, Leaf } from "lucide-react";
+import { Search, ChevronDown, Leaf, ArrowRightLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -67,14 +67,14 @@ export default function V2TopNav() {
           />
         </div>
 
-        {/* 3-dot menu + icons */}
-        <div className="flex items-center gap-1">
-          <button className="rounded p-1.5 text-gcs-gray-500 hover:bg-gcs-gray-100">
-            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-            </svg>
-          </button>
-        </div>
+        {/* Switch to V1 */}
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-1.5 rounded-lg border border-gcs-gray-200 px-2.5 py-1 text-[11px] font-medium text-gcs-gray-700 hover:bg-gcs-gray-50 hover:border-gcs-gray-300 transition-colors"
+        >
+          <ArrowRightLeft className="h-3 w-3 text-gcs-gray-500" />
+          V1 Classic
+        </Link>
 
         {/* User badge */}
         <div className="flex items-center gap-2 rounded border border-gcs-gray-200 px-2.5 py-1">
