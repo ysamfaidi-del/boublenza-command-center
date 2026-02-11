@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import V2Card from "@/components/v2/V2Card";
 import FilterDropdown from "@/components/v2/FilterDropdown";
 import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  CartesianGrid, Legend, PieChart, Pie, Cell, ComposedChart, Area
+  BarChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  CartesianGrid, Legend, PieChart, Pie, Cell, ComposedChart
 } from "recharts";
 
 interface MonthlyPnL { month: string; revenue: number; cogs: number; opex: number; netProfit: number; }
@@ -101,7 +101,8 @@ export default function ReportPage() {
           runway: avgOutflow > 0 ? Math.round(lastCash / avgOutflow) : 99,
         });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[V2 Report] Failed to load data, using demo fallback:", err);
         setData({
           monthlyPnl: [
             { month: "Jan", revenue: 245000, cogs: 142000, opex: 48000, netProfit: 55000 },
@@ -156,7 +157,7 @@ export default function ReportPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
+      <div className="flex h-[80vh] items-center justify-center" role="status" aria-label="Loading report">
         <div className="text-center">
           <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gcs-gray-200 border-t-gcs-blue" />
           <p className="mt-3 text-xs text-gcs-gray-500">Loading report...</p>
@@ -169,7 +170,7 @@ export default function ReportPage() {
   return (
     <div className="px-6 py-4 space-y-4">
       {/* ── KPI Strip ── */}
-      <div className="grid grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
           { label: "Total Revenue", value: fmt(data.totalRevenue), sub: "YTD" },
           { label: "Net Profit", value: fmt(data.totalProfit), sub: `${data.profitMargin}% margin` },
@@ -208,8 +209,8 @@ export default function ReportPage() {
       {/* ── Tab: P&L ── */}
       {tab === "pnl" && (
         <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2">
               <V2Card title="Monthly P&L" subtitle="Revenue, COGS, OpEx, Net Profit">
                 <div className="px-4 py-2 h-72">
                   <ResponsiveContainer width="100%" height="100%">

@@ -32,13 +32,14 @@ export default function V2TopNav() {
       </div>
 
       {/* Navigation Tabs */}
-      <nav className="flex h-full items-stretch gap-0">
+      <nav className="flex h-full items-stretch gap-0" aria-label="Main navigation">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href || pathname.startsWith(tab.href + "/");
           return (
             <Link
               key={tab.href}
               href={tab.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex items-center gap-1 px-3 text-[13px] font-medium transition-colors border-b-[3px]",
                 isActive

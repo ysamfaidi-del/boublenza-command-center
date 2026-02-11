@@ -75,7 +75,8 @@ export default function ResourcesPage() {
           sugarSpot: lastTs?.sugar || 0.28,
         });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[V2 Resources] Failed to load data, using demo fallback:", err);
         setData({
           timeSeries: [
             { date: "Jul", carob: 4.20, cocoa: 3050, sugar: 0.26 },
@@ -120,7 +121,7 @@ export default function ResourcesPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
+      <div className="flex h-[80vh] items-center justify-center" role="status" aria-label="Loading resources">
         <div className="text-center">
           <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gcs-gray-200 border-t-gcs-blue" />
           <p className="mt-3 text-xs text-gcs-gray-500">Loading resources...</p>
@@ -133,7 +134,7 @@ export default function ResourcesPage() {
   return (
     <div className="px-6 py-4 space-y-4">
       {/* ── KPI Strip ── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Carob Spot", value: `$${data.carobSpot.toFixed(2)}/kg`, sub: `${data.carobChange >= 0 ? "+" : ""}${data.carobChange.toFixed(1)}% MoM`, positive: data.carobChange >= 0 },
           { label: "Cocoa (ICE)", value: `$${data.cocoaSpot.toFixed(0)}/t`, sub: "benchmark", positive: true },
@@ -186,7 +187,7 @@ export default function ResourcesPage() {
               </ResponsiveContainer>
             </div>
           </V2Card>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <V2Card title="Forward Curve" subtitle="Carob futures curve">
               <div className="px-4 py-2 h-56">
                 <ResponsiveContainer width="100%" height="100%">

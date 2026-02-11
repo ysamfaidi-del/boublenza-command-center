@@ -5,7 +5,7 @@ import V2Card from "@/components/v2/V2Card";
 import FilterDropdown from "@/components/v2/FilterDropdown";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  CartesianGrid, Legend, PieChart, Pie, Cell, LineChart, Line
+  CartesianGrid, Legend
 } from "recharts";
 
 interface Shipment {
@@ -43,8 +43,6 @@ const STATUS_STYLE: Record<string, string> = {
   "Delayed": "bg-red-50 text-gcs-red",
   "Customs": "bg-purple-50 text-purple-600",
 };
-const COLORS = ["#1a73e8", "#188038", "#f9ab00", "#d93025", "#ab47bc"];
-
 function fmt(n: number) {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
@@ -95,7 +93,8 @@ export default function EngagementsPage() {
           onTimeRate: leadTimes.length ? Math.round(leadTimes.reduce((s, l) => s + l.onTime, 0) / leadTimes.length) : 87,
         });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[V2 Engagements] Failed to load data, using demo fallback:", err);
         setData({
           shipments: [
             { id: "SHP-2025-041", client: "Cargill EMEA", product: "CARUMA", qty: 20, origin: "Tlemcen Port", destination: "Rotterdam", status: "In Transit", eta: "2025-02-15", vessel: "MV Atlantic Star" },
@@ -138,7 +137,7 @@ export default function EngagementsPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
+      <div className="flex h-[80vh] items-center justify-center" role="status" aria-label="Loading engagements">
         <div className="text-center">
           <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gcs-gray-200 border-t-gcs-blue" />
           <p className="mt-3 text-xs text-gcs-gray-500">Loading engagements...</p>
@@ -151,7 +150,7 @@ export default function EngagementsPage() {
   return (
     <div className="px-6 py-4 space-y-4">
       {/* ── KPI Strip ── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "In Transit", value: String(data.inTransit), sub: "active shipments" },
           { label: "Delivered (MTD)", value: String(data.delivered), sub: "this month" },

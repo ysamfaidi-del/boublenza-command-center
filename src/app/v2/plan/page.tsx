@@ -70,7 +70,8 @@ export default function PlanPage() {
           forecasts,
         });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[V2 Plan] Failed to load data, using demo fallback:", err);
         setData({
           monthly: [
             { month: "Jan", actual: 42, target: 45, capacity: 60 },
@@ -111,7 +112,7 @@ export default function PlanPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
+      <div className="flex h-[80vh] items-center justify-center" role="status" aria-label="Loading plan">
         <div className="text-center">
           <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gcs-gray-200 border-t-gcs-blue" />
           <p className="mt-3 text-xs text-gcs-gray-500">Loading plan & pitch...</p>
@@ -124,7 +125,7 @@ export default function PlanPage() {
   return (
     <div className="px-6 py-4 space-y-4">
       {/* ── KPI Strip ── */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {[
           { label: "Total Output", value: `${data.totalOutput}t`, sub: "year to date" },
           { label: "Cost per Kg", value: `$${data.costPerKg.toFixed(2)}`, sub: "avg production cost" },
@@ -156,7 +157,7 @@ export default function PlanPage() {
       </div>
 
       {/* ── Charts Row 1: Production vs Target + Forecast ── */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <V2Card title="Monthly Production vs Target" subtitle="Tons by month">
           <div className="px-4 py-2 h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -191,7 +192,7 @@ export default function PlanPage() {
       </div>
 
       {/* ── Charts Row 2: Quality + Shift Performance ── */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <V2Card title="Quality Distribution" subtitle="By grade">
           <div className="px-4 py-2 h-56">
             <ResponsiveContainer width="100%" height="100%">

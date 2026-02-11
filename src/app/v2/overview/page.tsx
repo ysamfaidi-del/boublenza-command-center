@@ -16,12 +16,13 @@ export default function V2OverviewPage() {
     fetch("/api/v2/overview")
       .then((res) => res.json())
       .then(setData)
+      .catch((err) => console.error("[V2 Overview] Failed to load data:", err))
       .finally(() => setLoading(false));
   }, []);
 
   if (loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
+      <div className="flex h-[80vh] items-center justify-center" role="status" aria-label="Loading overview">
         <div className="text-center">
           <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gcs-gray-200 border-t-gcs-blue" />
           <p className="mt-3 text-xs text-gcs-gray-500">Loading overview...</p>

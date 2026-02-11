@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, MoreVertical, AlertTriangle, DollarSign, Users, Calendar, Activity } from "lucide-react";
+import { MoreVertical, AlertTriangle, DollarSign, Users, Calendar, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Todo {
@@ -35,7 +35,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export default function V2RightSidebar({ todos = [], recentLinks = [], anomaliesCount = 0, news = [] }: V2RightSidebarProps) {
   return (
-    <aside className="w-[300px] flex-shrink-0 border-l border-gcs-gray-200 bg-white overflow-y-auto">
+    <aside className="hidden xl:flex w-[300px] flex-shrink-0 flex-col border-l border-gcs-gray-200 bg-white overflow-y-auto">
       <div className="space-y-0">
         {/* Recently visited */}
         <div className="border-b border-gcs-gray-200 px-4 py-3">

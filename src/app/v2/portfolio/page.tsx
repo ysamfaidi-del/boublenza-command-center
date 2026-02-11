@@ -118,8 +118,8 @@ export default function PortfolioPage() {
           avgScore: scoring.length ? Math.round(scoring.reduce((s, c) => s + c.score, 0) / scoring.length) : 0,
         });
       })
-      .catch(() => {
-        /* demo fallback */
+      .catch((err) => {
+        console.error("[V2 Portfolio] Failed to load data, using demo fallback:", err);
         setData({
           scoring: [
             { client: "Cargill EMEA", country: "Netherlands", ca: 450000, score: 87, risk: "low", trend: "up" },
@@ -166,7 +166,7 @@ export default function PortfolioPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
+      <div className="flex h-[80vh] items-center justify-center" role="status" aria-label="Loading portfolio">
         <div className="text-center">
           <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gcs-gray-200 border-t-gcs-blue" />
           <p className="mt-3 text-xs text-gcs-gray-500">Loading portfolio...</p>
@@ -180,7 +180,7 @@ export default function PortfolioPage() {
   return (
     <div className="px-6 py-4 space-y-4">
       {/* ── KPI Strip ── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Active Clients", value: String(data.activeClients), sub: "accounts" },
           { label: "Pipeline Value", value: fmt(data.pipelineTotal), sub: `Weighted: ${fmt(data.weightedPipeline)}` },
@@ -216,9 +216,9 @@ export default function PortfolioPage() {
 
       {/* ── Tab: Client Scoring ── */}
       {tab === "scoring" && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Scoring table */}
-          <div className="col-span-2">
+          <div className="lg:col-span-2">
             <V2Card title="Client Portfolio Scoring" subtitle={`${data.scoring.length} accounts`}>
               <div className="px-4 pb-3">
                 <FilterDropdown

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import V2Card from "@/components/v2/V2Card";
 import FilterDropdown from "@/components/v2/FilterDropdown";
 import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, Legend, ComposedChart, Area
 } from "recharts";
 
@@ -93,7 +93,8 @@ export default function SupportPage() {
           breachCount: varBacktest.filter((v) => v.breach).length,
         });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[V2 Support] Failed to load data, using demo fallback:", err);
         setData({
           var: [
             { method: "Historical", confidence: "95%", horizon: "1-day", value: 45000 },
@@ -142,7 +143,7 @@ export default function SupportPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
+      <div className="flex h-[80vh] items-center justify-center" role="status" aria-label="Loading support">
         <div className="text-center">
           <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gcs-gray-200 border-t-gcs-blue" />
           <p className="mt-3 text-xs text-gcs-gray-500">Loading support...</p>
@@ -155,7 +156,7 @@ export default function SupportPage() {
   return (
     <div className="px-6 py-4 space-y-4">
       {/* ── KPI Strip ── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Portfolio VaR (95%)", value: fmt(data.portfolioVaR), sub: "1-day horizon" },
           { label: "Total Exposure", value: fmt(data.totalExposure), sub: "all counterparties" },
@@ -185,7 +186,7 @@ export default function SupportPage() {
       {/* ── Tab: Risk Management ── */}
       {tab === "risk" && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <V2Card title="Value at Risk (VaR)" subtitle="Multiple methodologies">
               <table className="v2-table">
                 <thead><tr><th>Method</th><th>Confidence</th><th>Horizon</th><th>VaR</th></tr></thead>
