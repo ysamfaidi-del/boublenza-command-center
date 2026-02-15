@@ -34,6 +34,7 @@ model Client {
   phone   String?
   orders  Order[]
   trades  Trade[]
+  leads   Lead[]
 
   @@schema("boublenza")
 }
@@ -385,5 +386,116 @@ model AuditLog {
   timestamp DateTime @default(now())
 
   @@index([entity, timestamp])
+  @@schema("boublenza")
+}
+
+// ── Sales CRM ───────────────────────────────────────
+
+model SalesRep {
+  id          String          @id @default(cuid())
+  name        String
+  email       String          @unique
+  role        String          // "Senior Commercial" | "Junior Commercial"
+  territory   String          // "Europe & Middle East" | "North Africa & Americas"
+  quota       Float           // Annual target in USD
+  avatar      String?
+  phone       String?
+  deals       Deal[]
+  leads       Lead[]
+  activities  Activity[]
+  googleToken GoogleToken?
+  forecasts   SalesForecast[]
+  createdAt   DateTime        @default(now())
+
+  @@schema("boublenza")
+}
+
+model Lead {
+  id           String     @id @default(cuid())
+  company      String
+  contactName  String
+  contactEmail String
+  contactPhone String?
+  source       String     // "website" | "referral" | "linkedin" | "trade_show"
+  status       String     @default("new") // "new" | "contacted" | "qualified" | "converted" | "lost"
+  notes        String?
+  repId        String
+  rep          SalesRep   @relation(fields: [repId], references: [id])
+  clientId     String?
+  client       Client?    @relation(fields: [clientId], references: [id])
+  deals        Deal[]
+  activities   Activity[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@schema("boublenza")
+}
+
+model Deal {
+  id            String     @id @default(cuid())
+  title         String
+  value         Float      // Amount in USD
+  currency      String     @default("USD")
+  stage         String     // prospection|qualification|proposition|negociation|closing|won|lost
+  probability   Int        // 0-100
+  product       String     // CARUMA|CARANI|CAROB_EXTRACT
+  quantity      Float?     // tonnes
+  repId         String
+  rep           SalesRep   @relation(fields: [repId], references: [id])
+  leadId        String?
+  lead          Lead?      @relation(fields: [leadId], references: [id])
+  expectedClose DateTime?
+  closedAt      DateTime?
+  notes         String?
+  activities    Activity[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@schema("boublenza")
+}
+
+model Activity {
+  id        String    @id @default(cuid())
+  type      String    // "call" | "email" | "meeting" | "note" | "task"
+  subject   String
+  body      String?
+  repId     String
+  rep       SalesRep  @relation(fields: [repId], references: [id])
+  leadId    String?
+  lead      Lead?     @relation(fields: [leadId], references: [id])
+  dealId    String?
+  deal      Deal?     @relation(fields: [dealId], references: [id])
+  dueDate   DateTime?
+  completed Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  @@schema("boublenza")
+}
+
+model GoogleToken {
+  id           String   @id @default(cuid())
+  repId        String   @unique
+  rep          SalesRep @relation(fields: [repId], references: [id])
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  scopes       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@schema("boublenza")
+}
+
+model SalesForecast {
+  id         String   @id @default(cuid())
+  repId      String
+  rep        SalesRep @relation(fields: [repId], references: [id])
+  period     String   // "2025-Q1", "2025-Q2", etc.
+  weighted   Float    // Sum(value × probability)
+  bestCase   Float
+  worstCase  Float
+  aiAdjusted Float?
+  createdAt  DateTime @default(now())
+
   @@schema("boublenza")
 }

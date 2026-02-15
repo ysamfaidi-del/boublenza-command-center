@@ -199,6 +199,73 @@ export async function GET() {
       { title: "Supply Chain Overview — Logistics", type: "page" },
     ];
 
+    // ── Dashboard KPIs & extra data ─────────────
+    let dashData: Record<string, unknown> = {};
+    try {
+      const dashRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/dashboard`);
+      if (dashRes.ok) dashData = await dashRes.json();
+    } catch { /* fallback */ }
+
+    const kpis = {
+      monthlyRevenue: Number((dashData as { kpis?: { monthlyRevenue?: number } }).kpis?.monthlyRevenue || Math.round(qtdRevenue / 3)),
+      monthlyRevenueChange: Number((dashData as { kpis?: { monthlyRevenueChange?: number } }).kpis?.monthlyRevenueChange || Math.round(weekOverWeek)),
+      totalProduction: Number((dashData as { kpis?: { totalProduction?: number } }).kpis?.totalProduction || 285),
+      productionChange: Number((dashData as { kpis?: { productionChange?: number } }).kpis?.productionChange || 4.2),
+      activeOrders: Number((dashData as { kpis?: { activeOrders?: number } }).kpis?.activeOrders || qtdOrders.length),
+      capacityRate: Number((dashData as { kpis?: { capacityRate?: number } }).kpis?.capacityRate || 78),
+      grossMarginPct: Number((dashData as { kpis?: { grossMarginPct?: number } }).kpis?.grossMarginPct || 42),
+      cashPosition: Number((dashData as { kpis?: { cashPosition?: number } }).kpis?.cashPosition || 705000),
+      ebitda: Number((dashData as { kpis?: { actualRevenue?: number; grossMarginPct?: number } }).kpis?.actualRevenue || qtdRevenue) * Number((dashData as { kpis?: { grossMarginPct?: number } }).kpis?.grossMarginPct || 42) / 100 * 0.7,
+    };
+
+    const productSales = ((dashData as { productSales?: unknown[] }).productSales || []).slice(0, 3).map((p: unknown) => {
+      const pp = p as Record<string, unknown>;
+      return { name: String(pp.name || ""), revenue: Number(pp.revenue || 0), quantity: Number(pp.quantity || 0), margin: Number(pp.margin || 0), marginPct: Number(pp.marginPct || 0) };
+    });
+    if (productSales.length === 0) {
+      productSales.push(
+        { name: "CARUMA", revenue: 720000, quantity: 160000, margin: 360000, marginPct: 50 },
+        { name: "CARANI", revenue: 420000, quantity: 210000, margin: 168000, marginPct: 40 },
+        { name: "CAROB EXTRACT", revenue: 480000, quantity: 56470, margin: 288000, marginPct: 60 },
+      );
+    }
+
+    const topClients = ((dashData as { topClients?: unknown[] }).topClients || []).slice(0, 5).map((c: unknown) => {
+      const cc = c as Record<string, unknown>;
+      return { name: String(cc.name || cc.client || ""), country: String(cc.country || ""), revenue: Number(cc.revenue || cc.value || 0), orders: Number(cc.orders || cc.count || 0), trend: (String(cc.trend || "up")) as "up" | "stable" | "down" };
+    });
+    if (topClients.length === 0) {
+      topClients.push(
+        { name: "Cargill EMEA", country: "Netherlands", revenue: 450000, orders: 12, trend: "up" as const },
+        { name: "Barry Callebaut", country: "Switzerland", revenue: 380000, orders: 8, trend: "stable" as const },
+        { name: "Olam Intl", country: "Singapore", revenue: 220000, orders: 6, trend: "up" as const },
+        { name: "Naturex", country: "France", revenue: 150000, orders: 5, trend: "down" as const },
+        { name: "SunOpta", country: "Canada", revenue: 180000, orders: 7, trend: "stable" as const },
+      );
+    }
+
+    const recentOrdersData = ((dashData as { recentOrders?: unknown[] }).recentOrders || []).slice(0, 5).map((o: unknown) => {
+      const oo = o as Record<string, unknown>;
+      return { id: String(oo.id || ""), client: String(oo.client || ""), product: String(oo.product || ""), amount: Number(oo.totalAmount || oo.amount || 0), status: String(oo.status || ""), date: String(oo.date || ""), paymentStatus: String(oo.paymentStatus || "pending") };
+    });
+    if (recentOrdersData.length === 0) {
+      recentOrdersData.push(
+        { id: "ORD-2025-041", client: "Cargill EMEA", product: "CARUMA", amount: 90000, status: "confirmed", date: "2025-02-08", paymentStatus: "pending" },
+        { id: "ORD-2025-040", client: "Barry Callebaut", product: "CAROB EXTRACT", amount: 42500, status: "in_production", date: "2025-02-06", paymentStatus: "received" },
+        { id: "ORD-2025-039", client: "Naturex", product: "CARUMA", amount: 67500, status: "shipped", date: "2025-02-03", paymentStatus: "partial" },
+      );
+    }
+
+    const productionVsTarget = ((dashData as { productionVsTarget?: unknown[] }).productionVsTarget || []).map((p: unknown) => {
+      const pp = p as Record<string, unknown>;
+      return { month: String(pp.month || pp.name || ""), actual: Number(pp.actual || pp.value || 0), target: Number(pp.target || 0) };
+    });
+    if (productionVsTarget.length === 0) {
+      ["Jan", "Feb", "Mar", "Apr", "May", "Jun"].forEach((m, i) => {
+        productionVsTarget.push({ month: m, actual: 42 + Math.round(Math.random() * 12), target: 45 + i });
+      });
+    }
+
     return NextResponse.json({
       revenueSummary,
       revenueTrend,
@@ -213,6 +280,11 @@ export async function GET() {
       anomaliesCount: alerts.filter((a) => a.severity === "critical").length,
       news,
       recentLinks,
+      kpis,
+      productSales,
+      topClients,
+      recentOrders: recentOrdersData,
+      productionVsTarget,
     });
   } catch {
     // Demo fallback
@@ -272,6 +344,37 @@ export async function GET() {
       recentLinks: [
         { title: "QBR Boublenza — Pitch Budget Full Funnel", subtitle: "Reporting Exécutif", type: "report" },
         { title: "Performance Q1 — Revenue Tracking", subtitle: "Boublenza SARL > Finances", type: "dashboard" },
+      ],
+      kpis: {
+        monthlyRevenue: 310000, monthlyRevenueChange: 8.5,
+        totalProduction: 285, productionChange: 4.2,
+        activeOrders: 14, capacityRate: 78,
+        grossMarginPct: 42, cashPosition: 705000, ebitda: 92610,
+      },
+      productSales: [
+        { name: "CARUMA", revenue: 720000, quantity: 160000, margin: 360000, marginPct: 50 },
+        { name: "CARANI", revenue: 420000, quantity: 210000, margin: 168000, marginPct: 40 },
+        { name: "CAROB EXTRACT", revenue: 480000, quantity: 56470, margin: 288000, marginPct: 60 },
+      ],
+      topClients: [
+        { name: "Cargill EMEA", country: "Netherlands", revenue: 450000, orders: 12, trend: "up" },
+        { name: "Barry Callebaut", country: "Switzerland", revenue: 380000, orders: 8, trend: "stable" },
+        { name: "Olam Intl", country: "Singapore", revenue: 220000, orders: 6, trend: "up" },
+        { name: "Naturex", country: "France", revenue: 150000, orders: 5, trend: "down" },
+        { name: "SunOpta", country: "Canada", revenue: 180000, orders: 7, trend: "stable" },
+      ],
+      recentOrders: [
+        { id: "ORD-2025-041", client: "Cargill EMEA", product: "CARUMA", amount: 90000, status: "confirmed", date: "2025-02-08", paymentStatus: "pending" },
+        { id: "ORD-2025-040", client: "Barry Callebaut", product: "CAROB EXTRACT", amount: 42500, status: "in_production", date: "2025-02-06", paymentStatus: "received" },
+        { id: "ORD-2025-039", client: "Naturex", product: "CARUMA", amount: 67500, status: "shipped", date: "2025-02-03", paymentStatus: "partial" },
+      ],
+      productionVsTarget: [
+        { month: "Jan", actual: 42, target: 45 },
+        { month: "Feb", actual: 48, target: 45 },
+        { month: "Mar", actual: 44, target: 50 },
+        { month: "Apr", actual: 51, target: 50 },
+        { month: "May", actual: 47, target: 48 },
+        { month: "Jun", actual: 53, target: 52 },
       ],
     });
   }

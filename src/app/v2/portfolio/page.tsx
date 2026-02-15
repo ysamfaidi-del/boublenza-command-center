@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import V2Card from "@/components/v2/V2Card";
 import FilterDropdown from "@/components/v2/FilterDropdown";
 import {
@@ -300,6 +302,17 @@ export default function PortfolioPage() {
       {/* ── Tab: Deal Pipeline ── */}
       {tab === "pipeline" && (
         <div className="space-y-4">
+          {/* Sales Pipeline CRM Link */}
+          <Link
+            href="/v2/sales"
+            className="flex items-center justify-between rounded-lg border border-gcs-blue bg-gcs-blue-light px-4 py-3 hover:bg-blue-100 transition-colors"
+          >
+            <div>
+              <p className="text-xs font-medium text-gcs-blue">Sales Pipeline & CRM</p>
+              <p className="text-[10px] text-gcs-gray-500">Full pipeline tracking, team performance, leads, forecasts, Gmail & Calendar</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-gcs-blue flex-shrink-0" />
+          </Link>
           <V2Card title="Deal Pipeline" subtitle={`${data.pipeline.length} active deals · ${fmt(data.pipelineTotal)} total`}>
             <table className="v2-table">
               <thead>

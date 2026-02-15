@@ -8,11 +8,15 @@ import { cn } from "@/lib/utils";
 const tabs = [
   { name: "Overview", href: "/v2/overview" },
   { name: "Portfolio", href: "/v2/portfolio", hasDropdown: true },
+  { name: "Sales", href: "/v2/sales" },
   { name: "Plan & pitch", href: "/v2/plan", hasDropdown: true },
   { name: "Report", href: "/v2/report", hasDropdown: true },
   { name: "Engagements", href: "/v2/engagements", hasDropdown: true },
   { name: "Resources", href: "/v2/resources", hasDropdown: true },
   { name: "Support", href: "/v2/support", hasDropdown: true },
+  { name: "War Room", href: "/v2/war-room" },
+  { name: "Slides", href: "/v2/slides" },
+  { name: "Import", href: "/v2/import" },
 ];
 
 export default function V2TopNav() {
